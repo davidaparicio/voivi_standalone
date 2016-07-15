@@ -1,9 +1,13 @@
 package eu.aparicio.david.voivi;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -16,6 +20,7 @@ public class MyFirstVerticle extends AbstractVerticle {
 
     // Store our product
     private Map<Integer, Feedback> feedbacks = new LinkedHashMap<>();
+
     // Create some product
     private void createSomeData() {
         Feedback mine = new Feedback("This restaurant was my best experience in my life !!", 18., "This restaurant", "be", "best experience", "3592c1ef-0df2-4e59-8302-d5c310743fce");
@@ -24,9 +29,9 @@ public class MyFirstVerticle extends AbstractVerticle {
         feedbacks.put(omar.getId(), omar);
     }
 
+
     @Override
     public void start(Future<Void> fut) {
-
         createSomeData();
 
         // Create a router object.
@@ -65,7 +70,7 @@ public class MyFirstVerticle extends AbstractVerticle {
     private void addOne(RoutingContext routingContext) {
         final Feedback newFeedback = Json.decodeValue(routingContext.getBodyAsString(),
                 Feedback.class);
-        System.out.println(newFeedback.toString());
+        //System.out.println(newFeedback.toString());
         feedbacks.put(newFeedback.getId(), newFeedback);
         routingContext.response()
                 .setStatusCode(201)

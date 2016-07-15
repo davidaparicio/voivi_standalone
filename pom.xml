@@ -18,6 +18,7 @@
         <mvncp.version>3.5.1</mvncp.version>
         <shade.version>2.4.3</shade.version>
         <mvnex.version>1.4.0</mvnex.version>
+        <mongo.version>1.50.5</mongo.version>
     </properties>
 
 
@@ -46,6 +47,17 @@
             <artifactId>vertx-unit</artifactId>
             <version>${vertx.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- VERT.X MongoDB Dependencies -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-mongo-client</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>${mongo.version}</version>
         </dependency>
     </dependencies>
 
