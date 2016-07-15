@@ -28,6 +28,12 @@
             <artifactId>vertx-core</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+        <!-- VERT.X WEB Dependencies -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
         <!-- VERT.X TEST Dependencies -->
         <dependency>
             <groupId>junit</groupId>
