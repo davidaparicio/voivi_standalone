@@ -32,6 +32,17 @@ public class Feedback {
         this.userId = userId;
     }
 
+    public Feedback(JsonObject json) {
+        this.id = json.getInteger("id");
+        this.timestamp = json.getLong("timestamp");
+        this.sentence = json.getString("sentence");
+        this.sentiment = json.getDouble("sentiment");
+        this.subject = json.getString("subject");
+        this.verb = json.getString("verb");
+        this.object = json.getString("object");
+        this.userId = json.getString("userId");
+    }
+
     public Feedback() {
         this.id = COUNTER.getAndIncrement();
         this.timestamp = Instant.now().getEpochSecond();

@@ -54,11 +54,11 @@
             <artifactId>vertx-mongo-client</artifactId>
             <version>${vertx.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>${mongo.version}</version>
-        </dependency>
+        </dependency-->
     </dependencies>
 
     <build>

@@ -32,7 +32,10 @@ public class MyFirstVerticleTest {
         socket.close();
 
         DeploymentOptions deployOptions = new DeploymentOptions()
-                .setConfig(new JsonObject().put("http.port", port)
+                .setConfig(new JsonObject()
+                        .put("http.port", port)
+                        //.put("db_name", "feedbacks-test")
+                        //.put("connection_string", "mongodb://localhost:37017")
                 );
 
         //System.out.println("LocalPort: "+port);
