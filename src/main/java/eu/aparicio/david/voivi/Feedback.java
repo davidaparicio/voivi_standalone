@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Feedback {
 
-    private static final AtomicInteger COUNTER = new AtomicInteger();
+    //private static final AtomicInteger COUNTER = new AtomicInteger();
 
-    private final int id;
+    private String _id;
 
     private String sentence;
     private Double sentiment;
@@ -22,7 +22,7 @@ public class Feedback {
 
 
     public Feedback(String sentence, Double sentiment, String subject, String verb, String object, String userId) {
-        this.id = COUNTER.getAndIncrement();
+        this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
         this.sentence = sentence;
         this.sentiment = sentiment;
@@ -33,7 +33,7 @@ public class Feedback {
     }
 
     public Feedback(JsonObject json) {
-        this.id = json.getInteger("id");
+        this._id = json.getString("_id");
         this.timestamp = json.getLong("timestamp");
         this.sentence = json.getString("sentence");
         this.sentiment = json.getDouble("sentiment");
@@ -44,12 +44,12 @@ public class Feedback {
     }
 
     public Feedback() {
-        this.id = COUNTER.getAndIncrement();
+        this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
     }
 
-    public int getId() {
-        return id;
+    public String getId() {
+        return _id;
     }
 
     public String getSentence() {
@@ -111,7 +111,7 @@ public class Feedback {
     @Override
     public String toString() {
         return "Feedback{" +
-                "id=" + id +
+                "_id=" + _id +
                 ", sentence='" + sentence + '\'' +
                 ", sentiment=" + sentiment +
                 ", subject='" + subject + '\'' +
