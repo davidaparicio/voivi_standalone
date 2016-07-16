@@ -88,7 +88,7 @@ public class MyFirstVerticle extends AbstractVerticle {
         router.get("/api/feedbacks").handler(this::getAll);
         router.route("/api/feedbacks*").handler(BodyHandler.create());
         //router.post("/api/feedbacks").handler(this::addOne);
-        //router.delete("/api/feedbacks/:id").handler(this::deleteOne);
+        router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route().handler(StaticHandler.create());
 
         vertx
@@ -130,7 +130,7 @@ public class MyFirstVerticle extends AbstractVerticle {
                 .setStatusCode(201)
                 .putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(newFeedback));
-    }
+    }*/
 
     private void deleteOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
@@ -146,5 +146,5 @@ public class MyFirstVerticle extends AbstractVerticle {
                 }
             });
         }
-    }*/
+    }
 }
