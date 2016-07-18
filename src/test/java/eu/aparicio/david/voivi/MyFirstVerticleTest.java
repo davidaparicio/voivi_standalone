@@ -34,11 +34,7 @@ public class MyFirstVerticleTest {
         DeploymentOptions deployOptions = new DeploymentOptions()
                 .setConfig(new JsonObject()
                         .put("http.port", port)
-                        //.put("db_name", "feedbacks-test")
-                        //.put("connection_string", "mongodb://localhost:37017")
                 );
-
-        //System.out.println("LocalPort: "+port);
 
         // We pass the options as the second parameter of the deployVerticle method.
         vertx.deployVerticle(
@@ -60,7 +56,6 @@ public class MyFirstVerticleTest {
             context.assertEquals(response.statusCode(), 200);
             //context.assertEquals(response.headers().get("content-type"), "text/html;charset=UTF-8");
             response.bodyHandler(body -> {
-                //System.out.println(body.toString());
                 context.assertTrue(body.toString().contains("<title>Feedback Dashboard</title>"));
                 async.complete();
             });

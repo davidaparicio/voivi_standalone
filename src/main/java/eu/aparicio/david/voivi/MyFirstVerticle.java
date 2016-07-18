@@ -5,7 +5,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
@@ -13,21 +12,16 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import sun.tools.tree.AssignUnsignedShiftRightExpression;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MyFirstVerticle extends AbstractVerticle {
 
-    // Store our product
-    // private Map<Integer, Feedback> feedbacks = new LinkedHashMap<>();
-
+    // mongoClient configuration
     private JsonObject mongoConfig;
     private MongoClient mongoClient;
-
+    // Store our product
     public static final String COLLECTION = "feedbacks";
 
     // Create some product
@@ -39,12 +33,12 @@ public class MyFirstVerticle extends AbstractVerticle {
                     Feedback mine = new Feedback("This restaurant was my best experience in my life !!", 18., "This restaurant", "be", "best experience", "3592c1ef-0df2-4e59-8302-d5c310743fce");
                     Feedback omar = new Feedback("I found a hair on my plate. Yuck!!", 7.25, "I", "find", "hair", "df86f144-314c-4c13-842c-9208fcdb1972");
                     // no whiskies, insert data
-                    mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(mine)), ar -> {
-                        if (ar.failed()) {
-                            fut.fail(ar.cause());
+                    mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(mine)), insert1 -> {
+                        if (insert1.failed()) {
+                            fut.fail(insert1.cause());
                         } else {
-                            mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(omar)), ar2 -> {
-                                if (ar2.failed()) {
+                            mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(omar)), insert2 -> {
+                                if (insert2.failed()) {
                                     fut.failed();
                                 } else {
                                     next.handle(Future.<Void>succeededFuture());
@@ -67,9 +61,9 @@ public class MyFirstVerticle extends AbstractVerticle {
     public void start(Future<Void> fut) {
         mongoConfig = new JsonObject()
                 .put("connection_string",
-                        "mongodb://" +
-                        config().getString("mongo.ip", "localhost")+ ":" +
-                        config().getInteger("mongo.port", 27017))
+                    "mongodb://" +
+                    config().getString("mongo.ip", "localhost")+ ":" +
+                    config().getInteger("mongo.port", 27017))
                 .put("db_name", config().getString("db_name", "voivi"));
 
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
@@ -94,8 +88,7 @@ public class MyFirstVerticle extends AbstractVerticle {
                 .createHttpServer()
                 .requestHandler(router::accept)
                 .listen(
-                    // Retrieve the port from the configuration,
-                    // default to 8080.
+                    // Retrieve the port from the configuration, default to 8080.
                     config().getInteger("http.port", 8080),
                     next::handle
                 );
