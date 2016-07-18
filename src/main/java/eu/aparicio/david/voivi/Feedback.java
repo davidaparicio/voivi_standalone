@@ -19,8 +19,6 @@ public class Feedback {
     private String userId;
     private Long timestamp;
 
-
-
     public Feedback(String sentence, Double sentiment, String subject, String verb, String object, String userId) {
         this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
@@ -79,6 +77,8 @@ public class Feedback {
     public Long getTimestamp() {
         return timestamp;
     }
+
+    public void setId(String _id) { this._id = _id; }
 
     public void setSentence(String sentence) {
         this.sentence = sentence;

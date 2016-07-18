@@ -87,7 +87,7 @@ public class MyFirstVerticle extends AbstractVerticle {
 
         router.get("/api/feedbacks").handler(this::getAll);
         router.route("/api/feedbacks*").handler(BodyHandler.create());
-        //router.post("/api/feedbacks").handler(this::addOne);
+        router.post("/api/feedbacks").handler(this::addOne);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route().handler(StaticHandler.create());
 
@@ -121,23 +121,29 @@ public class MyFirstVerticle extends AbstractVerticle {
         });
     }
 
-    /*private void addOne(RoutingContext routingContext) {
-        final Feedback newFeedback = Json.decodeValue(routingContext.getBodyAsString(),
-                Feedback.class);
-        //System.out.println(newFeedback.toString());
-        feedbacks.put(newFeedback.getId(), newFeedback);
-        routingContext.response()
-                .setStatusCode(201)
-                .putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encodePrettily(newFeedback));
-    }*/
+    private void addOne(RoutingContext routingContext) {
+        final Feedback newFeedback = Json.decodeValue(routingContext.getBodyAsString(), Feedback.class);
+
+        client.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), r ->
+            {
+                if (r.failed()) {
+                    routingContext.response().setStatusCode(404).end();
+                } else {
+                    newFeedback.setId(r.result());
+                    routingContext.response()
+                            .setStatusCode(201)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(newFeedback));
+                }
+            });
+    }
 
     private void deleteOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if (id == null) {
             routingContext.response().setStatusCode(400).end();
         } else {
-            client.remove(COLLECTION, new JsonObject().put("_id", id), res -> {
+            client.removeDocument(COLLECTION, new JsonObject().put("_id", id), res -> {
                 if (res.succeeded()) {
                     routingContext.response().setStatusCode(204).end();
                 } else {
