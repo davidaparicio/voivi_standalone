@@ -20,7 +20,7 @@ import java.net.ServerSocket;
 public class MyFirstVerticleTest {
     private Vertx vertx;
     private Integer port;
-    private String testId;
+    private String testId = "testId";
 
     @Before
     public void setUp(TestContext context) throws IOException {
@@ -84,14 +84,13 @@ public class MyFirstVerticleTest {
                         context.assertEquals(responseFeedback.getUserId(), "clefc1ef-clef-clef-clef-clefclefclef");
                         context.assertNotNull(responseFeedback.getId());
                         testId = responseFeedback.getId();
+                        checkThatWeCanDelete(context);
                         async.complete();
                     });
                 })
                 .write(json)
                 .end();
     }
-
-    @Test
     public void checkThatWeCanDelete(TestContext context) {
         Async async = context.async();
         vertx.createHttpClient().delete(port, "localhost", "/api/feedbacks/"+ testId)
