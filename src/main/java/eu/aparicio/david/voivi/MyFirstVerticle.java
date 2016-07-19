@@ -81,6 +81,7 @@ public class MyFirstVerticle extends AbstractVerticle {
         router.get("/api/feedbacks").handler(this::getAll);
         router.route("/api/feedbacks*").handler(BodyHandler.create());
         router.post("/api/feedbacks").handler(this::addOne);
+        router.get("/api/feedbacks/:id").handler(this::getOne);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route().handler(StaticHandler.create());
 
@@ -111,6 +112,35 @@ public class MyFirstVerticle extends AbstractVerticle {
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(feedbacks));
         });
+    }
+
+    private void getOne(RoutingContext routingContext) {
+        final String id = routingContext.request().getParam("id");
+        if (id == null) {
+            routingContext.response().setStatusCode(400).end();
+        } else {
+            mongoClient.count(COLLECTION, new JsonObject().put("_id", id), count -> {
+                if (count.succeeded()) {
+                    if (count.result() == 1) {
+                        mongoClient.find(COLLECTION, new JsonObject().put("_id", id), res -> {
+                            if (res.succeeded()) {
+                                routingContext.response()
+                                        .putHeader("content-type", "application/json; charset=utf-8")
+                                        .end(Json.encodePrettily(res.result()));
+                            } else {
+                                res.cause().printStackTrace();
+                                routingContext.response().setStatusCode(404).end();
+                            }
+                        });
+                    } else {
+                        routingContext.response().setStatusCode(404).end();
+                    }
+                } else {
+                    count.cause().printStackTrace();
+                    routingContext.response().setStatusCode(404).end();
+                }
+            });
+        }
     }
 
     private void addOne(RoutingContext routingContext) {

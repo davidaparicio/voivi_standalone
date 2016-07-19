@@ -18,7 +18,14 @@
         <mvncp.version>3.5.1</mvncp.version>
         <shade.version>2.4.3</shade.version>
         <mvnex.version>1.4.0</mvnex.version>
+        <itrst.version>3.0.0</itrst.version>
+        <itatj.version>3.5.1</itatj.version>
+        <ithlp.version>1.11</ithlp.version>
+        <itest.version>2.19.1</itest.version>
+        <itant.version>1.8</itant.version>
         <mongo.version>1.50.5</mongo.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
 
@@ -48,6 +55,19 @@
             <version>${vertx.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- IT Tests - Some packages -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${itrst.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${itatj.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- VERT.X MongoDB Dependencies -->
         <dependency>
             <groupId>io.vertx</groupId>
@@ -59,9 +79,24 @@
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>${mongo.version}</version>
         </dependency-->
+        <!--LOCAL><dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.4.2</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency-->
     </dependencies>
 
     <build>
+        <!-- IT Tests - Need to enable the filtering of the src/test/resources to inject the random port -->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
             <!-- COMPILATION -->
             <plugin>
@@ -72,7 +107,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <!-- FAT-JAR -->
+            <!-- FAT-JAR for the package -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -95,6 +130,97 @@
                             </transformers>
                             <artifactSet/>
                             <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- IT Tests - Pick an unused random port, the selected port is set into the "http.port" variable -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${ithlp.version}</version>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>http.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- IT Tests - Failsafe Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${itest.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <systemProperties>
+                                <http.port>${http.port}</http.port>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- IT Tests - We use the maven-antrun-plugin to start the application before the integration tests
+            and stop them afterward -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${itant.version}</version>
+                <executions>
+                    <execution>
+                        <id>start-vertx-app</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!--
+                                Launch the application as in 'production' using the fatjar.
+                                We pass the generated configuration, configuring the http port to the picked one
+                                -->
+                                <exec executable="${java.home}/bin/java"
+                                      dir="${project.build.directory}"
+                                      spawn="true">
+                                    <arg value="-jar"/>
+                                    <arg value="${project.artifactId}-${project.version}-fat.jar"/>
+                                    <arg value="-conf"/>
+                                    <arg value="${project.build.directory}/test-classes/configIT.json"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-vertx-app</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                              Kill the started process.
+                              Finding the right process is a bit tricky. Windows command in in the windows profile (below)
+                              -->
+                            <target>
+                                <exec executable="bash"
+                                      dir="${project.build.directory}"
+                                      spawn="false">
+                                    <arg value="-c"/>
+                                    <arg value="ps ax | grep -i '${project.artifactId}' | awk 'NR==1{print $1}' | xargs kill -SIGTERM"/>
+                                </exec>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

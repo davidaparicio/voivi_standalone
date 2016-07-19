@@ -1,10 +1,10 @@
 package eu.aparicio.david.voivi;
 
-import com.sun.prism.impl.BaseMesh;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.StreamBase;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 public class MyFirstVerticleTest {
     private Vertx vertx;
     private Integer port;
+    private String testId;
 
     @Before
     public void setUp(TestContext context) throws IOException {
@@ -82,6 +83,7 @@ public class MyFirstVerticleTest {
                         context.assertEquals(responseFeedback.getObject(), "tests");
                         context.assertEquals(responseFeedback.getUserId(), "clefc1ef-clef-clef-clef-clefclefclef");
                         context.assertNotNull(responseFeedback.getId());
+                        testId = responseFeedback.getId();
                         async.complete();
                     });
                 })
@@ -89,4 +91,14 @@ public class MyFirstVerticleTest {
                 .end();
     }
 
+    @Test
+    public void checkThatWeCanDelete(TestContext context) {
+        Async async = context.async();
+        vertx.createHttpClient().delete(port, "localhost", "/api/feedbacks/"+ testId)
+                .handler(res -> {
+                    context.assertEquals(res.statusCode(), 204);
+                    async.complete();
+                })
+                .end();
+    }
 }
