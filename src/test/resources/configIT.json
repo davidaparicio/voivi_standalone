@@ -1,6 +1,6 @@
 {
   "http.port" : ${http.port},
   "mongo.port": 27017,
-  "mongo.ip": "localhost",
+  "mongo.ip": "192.168.99.100",
   "db_name": "voivi"
 }

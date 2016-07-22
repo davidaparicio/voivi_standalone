@@ -83,7 +83,8 @@ public class MyFirstVerticle extends AbstractVerticle {
         router.post("/api/feedbacks").handler(this::addOne);
         router.get("/api/feedbacks/:id").handler(this::getOne);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
-        router.route().handler(StaticHandler.create());
+        router.route("/*").handler(StaticHandler.create("webroot"));
+        //router.route().handler(StaticHandler.create());
 
         vertx
                 .createHttpServer()

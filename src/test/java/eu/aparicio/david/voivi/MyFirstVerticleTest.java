@@ -35,6 +35,9 @@ public class MyFirstVerticleTest {
         DeploymentOptions deployOptions = new DeploymentOptions()
                 .setConfig(new JsonObject()
                         .put("http.port", port)
+                        .put("connection_string",
+                                "mongodb://" + mongo.ip + ":" mongo.port", 27017))
+                        .put("db_name", "voivi_test");
                 );
 
         // We pass the options as the second parameter of the deployVerticle method.
