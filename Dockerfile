@@ -22,3 +22,4 @@ COPY ./target/${JAR} .
 
 ENTRYPOINT ["sh", "-c"]
 CMD ["java -jar ${JAR} -conf config.json"]
+
