@@ -1,9 +1,10 @@
 version: '2'
+volumes:
+  jiminy:
 services:
   app:
     #container_name: voivi_app
     build: .
-    #command: python manage.py runserver 0.0.0.0:8000
     ports:
     - "10101:10101"
     #volumes:
@@ -15,15 +16,12 @@ services:
   db:
     #container_name: voivi_database
     image: library/mongo:3.2.8
-    #command: mongod -f mongod.cfg
-    #volumes:
-    #- ./data/db:/data/db
+    #command: mongod -f /etc/mongo.conf
+    volumes:
+    - jiminy:/data/db
+    #- ./docker/mongo/db:/data/db
+    #- ./docker/mongo/log:/log
+    #- ./docker/mongo/mongod.cfg:/etc/mongo.conf
     ports:
     - "27017:27017"
-    restart: always
-
-#build:
-#  context: ./dir
-#  dockerfile: Dockerfile-alternate
-#  args:
-#    buildno: 1
+    #restart: always
