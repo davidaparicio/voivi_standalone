@@ -62,9 +62,11 @@ public class MyFirstVerticle extends AbstractVerticle {
         mongoConfig = new JsonObject()
                 .put("connection_string",
                     "mongodb://" +
-                    config().getString("mongo.ip", "localhost")+ ":" +
+                    config().getString("mongo.ip", "lol")+ ":" +
                     config().getInteger("mongo.port", 27017))
                 .put("db_name", config().getString("db_name", "voivi"));
+
+        //System.out.println(mongoClient.toString());
 
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
 
@@ -84,7 +86,6 @@ public class MyFirstVerticle extends AbstractVerticle {
         router.get("/api/feedbacks/:id").handler(this::getOne);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route("/*").handler(StaticHandler.create("webroot"));
-        //router.route().handler(StaticHandler.create());
 
         vertx
                 .createHttpServer()

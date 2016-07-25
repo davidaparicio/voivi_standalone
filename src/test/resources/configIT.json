@@ -2,5 +2,5 @@
   "http.port" : ${http.port},
   "mongo.port": 27017,
   "mongo.ip": "192.168.99.100",
-  "db_name": "voivi"
+  "db_name": "voivi_ITtest"
 }

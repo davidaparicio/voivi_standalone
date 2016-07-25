@@ -1,5 +1,7 @@
 package eu.aparicio.david.voivi;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
@@ -13,10 +15,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 
 @RunWith(VertxUnitRunner.class)
+
 public class MyFirstVerticleTest {
     private Vertx vertx;
     private Integer port;
@@ -24,24 +29,43 @@ public class MyFirstVerticleTest {
 
     @Before
     public void setUp(TestContext context) throws IOException {
+        //System.out.println("[TEST] - Setup started");
+
+        Gson gson = new Gson(); //Json Parser
+        String jsonString = null;
+
+        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+
+        // Read the configuration file
+        try {
+            JsonElement json = gson.fromJson(new FileReader("src/main/resources/config.json"), JsonElement.class);
+            jsonString = gson.toJson(json);
+        } catch (FileNotFoundException e) {
+            System.err.println("FileNotFoundException ||"+e.toString());
+        }
+
         vertx = Vertx.vertx();
 
         // Let's configure the verticle to listen on the 'test' port (randomly picked).
         // We create deployment options and set the _configuration_ json object:
         ServerSocket socket = new ServerSocket(0);
         port = socket.getLocalPort();
+        JsonObject jsonConfig = new JsonObject(jsonString)
+                .put("http.port", port) //random port
+                .put("db_name", "voivi_UnitTest"); //change to the test database
         socket.close();
 
-        DeploymentOptions deployOptions = new DeploymentOptions()
-                .setConfig(new JsonObject()
-                        .put("http.port", port)
-                );
+        //System.out.println(jsonConfig.toString());
+
+        DeploymentOptions deployOptions = new DeploymentOptions().setConfig(jsonConfig);
 
         // We pass the options as the second parameter of the deployVerticle method.
         vertx.deployVerticle(
                 MyFirstVerticle.class.getName(),
                 deployOptions,
                 context.asyncAssertSuccess());
+
+        //System.out.println("[TEST] - Setup finished");
     }
 
     @After

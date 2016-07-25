@@ -9,10 +9,15 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+        <!-- JAVA VERSION USED = JAVA 8 -->
+        <javac.version>1.8</javac.version>
         <!-- the main verticle class name -->
         <main.verticle>eu.aparicio.david.voivi.MyFirstVerticle</main.verticle>
+        <IT.configfile>config[IT].json</IT.configfile> <!-- [] helps to remove the last line in the ps -->
         <vertx.version>3.3.2</vertx.version>
         <junit.version>4.12</junit.version>
+        <gsonp.version>2.7</gsonp.version>
+        <sfire.version>2.19.1</sfire.version>
         <StNLP.version>3.6.0</StNLP.version>
         <slf4j.version>1.7.21</slf4j.version>
         <mvncp.version>3.5.1</mvncp.version>
@@ -55,6 +60,11 @@
             <version>${vertx.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gsonp.version}</version>
+        </dependency>
         <!-- IT Tests - Some packages -->
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -68,17 +78,17 @@
             <version>${itatj.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>${mongo.version}</version>
+        </dependency-->
         <!-- VERT.X MongoDB Dependencies -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-mongo-client</artifactId>
             <version>${vertx.version}</version>
         </dependency>
-        <!--dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>${mongo.version}</version>
-        </dependency-->
         <!--LOCAL><dependency>
             <groupId>com.sun</groupId>
             <artifactId>tools</artifactId>
@@ -89,22 +99,21 @@
     </dependencies>
 
     <build>
-        <!-- IT Tests - Need to enable the filtering of the src/test/resources to inject the random port -->
         <testResources>
+            <!-- IT Tests - Need to enable the filtering of the src/test/resources to inject the random port -->
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
             </testResource>
         </testResources>
-
         <plugins>
             <!-- COMPILATION -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${mvncp.version}</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${javac.version}</source>
+                    <target>${javac.version}</target>
                 </configuration>
             </plugin>
             <!-- FAT-JAR for the package -->
@@ -211,14 +220,16 @@
                         <configuration>
                             <!--
                               Kill the started process.
-                              Finding the right process is a bit tricky. Windows command in in the windows profile (below)
+                              Finding the right process is a bit tricky.
                               -->
                             <target>
                                 <exec executable="bash"
                                       dir="${project.build.directory}"
                                       spawn="false">
                                     <arg value="-c"/>
-                                    <arg value="ps ax | grep -i '${project.artifactId}' | awk 'NR==1{print $1}' | xargs kill -SIGTERM"/>
+                                    <arg value="ps -A | grep -Ei '[\-]DtestPort=${http.port}\s+\-jar\s+${project.artifactId}' | awk '{print $1}' | xargs kill -SIGTERM"/>
+                                    <!--arg value="ps -A | grep -Ei '${project.artifactId}:*${IT.configfile}' | awk '{print $1}' | xargs kill -SIGTERM"/>
+                                    <arg value="ps ax | grep -Ei '${project.artifactId}' | awk 'NR==1{print $1}' | xargs kill -SIGTERM"/-->
                                 </exec>
                             </target>
                         </configuration>
