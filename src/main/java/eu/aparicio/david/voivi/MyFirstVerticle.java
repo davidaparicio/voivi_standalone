@@ -13,6 +13,10 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.logging.Logger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,56 +28,38 @@ public class MyFirstVerticle extends AbstractVerticle {
     // Store our product
     public static final String COLLECTION = "feedbacks";
 
-    // Create some product
+    private Logger logger = Logger.getLogger(MyFirstVerticle.class.getName());
+    private String content_type = "application/json; charset=utf-8";
+
+    // Check if the database is not empty
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
         // Do we have data in the collection ?
         mongoClient.count(COLLECTION, new JsonObject(), count -> {
-            if (count.succeeded()) {
-                if (count.result() == 0) {
-                    Feedback mine = new Feedback("This restaurant was my best experience in my life !!", 18., "This restaurant", "be", "best experience", "3592c1ef-0df2-4e59-8302-d5c310743fce");
-                    Feedback omar = new Feedback("I found a hair on my plate. Yuck!!", 7.25, "I", "find", "hair", "df86f144-314c-4c13-842c-9208fcdb1972");
-                    // no whiskies, insert data
-                    mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(mine)), insert1 -> {
-                        if (insert1.failed()) {
-                            fut.fail(insert1.cause());
-                        } else {
-                            mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(omar)), insert2 -> {
-                                if (insert2.failed()) {
-                                    fut.failed();
-                                } else {
-                                    next.handle(Future.<Void>succeededFuture());
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    next.handle(Future.<Void>succeededFuture());
-                }
-            } else {
+            if (count.failed()) {
                 // report the error
+                loggerWarning("createSomeData",count);
                 fut.fail(count.cause());
+            } else {
+                if (count.result() != 0) {
+                    next.handle(Future.<Void>succeededFuture());
+                } else {
+                    createExampleData(next,fut);
+                }
             }
         });
     }
-
 
     @Override
     public void start(Future<Void> fut) {
         mongoConfig = new JsonObject()
                 .put("connection_string",
                     "mongodb://" +
-                    config().getString("mongo.ip", "lol")+ ":" +
+                    config().getString("mongo.ip", "localhost")+ ":" +
                     config().getInteger("mongo.port", 27017))
                 .put("db_name", config().getString("db_name", "voivi"));
-
-        //System.out.println(mongoClient.toString());
-
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
 
-        createSomeData(
-            (nothing) -> startWebApp(
-                (http) -> completeStartup(http,fut)
-            ),fut);
+        createSomeData(nothing -> startWebApp(http -> completeStartup(http,fut)),fut);
     }
 
     private void startWebApp(Handler<AsyncResult<HttpServer>> next) {
@@ -100,19 +86,32 @@ public class MyFirstVerticle extends AbstractVerticle {
     private void completeStartup(AsyncResult<HttpServer> http, Future<Void> fut) {
         if (http.succeeded()) {
             fut.complete();
-            System.out.println("[SERVER] - Started http://localhost:"+config().getInteger("http.port", 8080));
+            String ipWebservice;
+            try {
+                ipWebservice = InetAddress.getLocalHost().getHostAddress();
+                logger.info("[SERVER] - Started http://"+ipWebservice+":"+config().getInteger("http.port", 8080));
+            } catch (UnknownHostException e) {
+                logger.finest("[completeStartup]"+e);
+                logger.info("[SERVER] - Started http://localhost:"+config().getInteger("http.port", 8080));
+            }
         } else {
             fut.fail(http.cause());
+            logger.severe("[SERVER] - Complete Startup failed");
         }
     }
 
     private void getAll(RoutingContext routingContext) {
-        mongoClient.find(COLLECTION, new JsonObject(), results -> {
-            List<JsonObject> objects = results.result();
-            List<Feedback> feedbacks = objects.stream().map(Feedback::new).collect(Collectors.toList());
-            routingContext.response()
-                    .putHeader("content-type", "application/json; charset=utf-8")
-                    .end(Json.encodePrettily(feedbacks));
+        mongoClient.find(COLLECTION, new JsonObject(), res -> {
+            if (res.succeeded()) {
+                List<JsonObject> objects = res.result();
+                List<Feedback> feedbacks = objects.stream().map(Feedback::new).collect(Collectors.toList());
+                routingContext.response()
+                        .putHeader("content-type", content_type)
+                        .end(Json.encodePrettily(feedbacks));
+            } else {
+                loggerWarning("getAll",res);
+                routingContext.response().setStatusCode(404).end();
+            }
         });
     }
 
@@ -126,20 +125,18 @@ public class MyFirstVerticle extends AbstractVerticle {
                     if (count.result() == 1) {
                         mongoClient.find(COLLECTION, new JsonObject().put("_id", id), res -> {
                             if (res.succeeded()) {
-                                routingContext.response()
-                                        .putHeader("content-type", "application/json; charset=utf-8")
-                                        .end(Json.encodePrettily(res.result()));
+                                routingContext.response().putHeader("content-type", content_type).end(Json.encodePrettily(res.result()));
                             } else {
-                                res.cause().printStackTrace();
-                                routingContext.response().setStatusCode(404).end();
+                                routingContext.response().setStatusCode(404).end(); loggerWarning("getOne",res);
                             }
                         });
+                    } else if (count.result() == 0){
+                        routingContext.response().setStatusCode(404).end(); logger.warning("[getOne] - There is no feedback with this _id="+id);
                     } else {
-                        routingContext.response().setStatusCode(404).end();
+                        routingContext.response().setStatusCode(404).end(); logger.warning("[getOne] - There is multiple feedbacks with this _id="+id);
                     }
                 } else {
-                    count.cause().printStackTrace();
-                    routingContext.response().setStatusCode(404).end();
+                    routingContext.response().setStatusCode(404).end(); loggerWarning("getOne",count);
                 }
             });
         }
@@ -148,15 +145,16 @@ public class MyFirstVerticle extends AbstractVerticle {
     private void addOne(RoutingContext routingContext) {
         final Feedback newFeedback = Json.decodeValue(routingContext.getBodyAsString(), Feedback.class);
 
-        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), r ->
+        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
             {
-                if (r.failed()) {
+                if (res.failed()) {
+                    loggerWarning("addOne",res);
                     routingContext.response().setStatusCode(404).end();
                 } else {
-                    newFeedback.setId(r.result());
+                    newFeedback.setId(res.result());
                     routingContext.response()
                             .setStatusCode(201)
-                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .putHeader("content-type", content_type)
                             .end(Json.encodePrettily(newFeedback));
                 }
             });
@@ -171,10 +169,35 @@ public class MyFirstVerticle extends AbstractVerticle {
                 if (res.succeeded()) {
                     routingContext.response().setStatusCode(204).end();
                 } else {
-                    res.cause().printStackTrace();
+                    loggerWarning("deleteOne",res);
                     routingContext.response().setStatusCode(400).end();
                 }
             });
         }
+    }
+
+    private void loggerWarning(String functionName, AsyncResult res) {
+        logger.warning("["+functionName+"]" + res.cause().getMessage() + "\n" + Arrays.toString(res.cause().getStackTrace()));
+    }
+
+    private void createExampleData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
+        Feedback mine = new Feedback("This restaurant was my best experience in my life !!", 18., "This restaurant", "be", "best experience", "3592c1ef-0df2-4e59-8302-d5c310743fce");
+        Feedback omar = new Feedback("I found a hair on my plate. Yuck!!", 7.25, "I", "find", "hair", "df86f144-314c-4c13-842c-9208fcdb1972");
+        // no feedbacks, insert data
+        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(mine)), insert1 -> {
+            if (insert1.failed()) {
+                loggerWarning("createSomeData", insert1);
+                fut.fail(insert1.cause());
+            } else {
+                mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(omar)), insert2 -> {
+                    if (insert2.failed()) {
+                        loggerWarning("createSomeData", insert2);
+                        fut.failed();
+                    } else {
+                        next.handle(Future.<Void>succeededFuture());
+                    }
+                });
+            }
+        });
     }
 }

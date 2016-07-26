@@ -3,14 +3,10 @@ package eu.aparicio.david.voivi;
 import io.vertx.core.json.JsonObject;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Feedback {
 
-    //private static final AtomicInteger COUNTER = new AtomicInteger();
-
     private String _id;
-
     private String sentence;
     private Double sentiment;
     private String subject;
