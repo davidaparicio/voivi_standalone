@@ -1,6 +1,7 @@
 version: '2'
 volumes:
   jiminy:
+  jiparm:
 services:
   app:
     #container_name: voivi_app
@@ -19,6 +20,7 @@ services:
     #command: mongod -f /etc/mongo.conf
     volumes:
     - jiminy:/data/db
+    - jiparm:/data/configdb
     #- ./docker/mongo/db:/data/db
     #- ./docker/mongo/log:/log
     #- ./docker/mongo/mongod.cfg:/etc/mongo.conf

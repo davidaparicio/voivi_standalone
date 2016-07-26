@@ -1,4 +1,6 @@
 #FROM library/mongo:3.2.8
+#FROM library/jenkins:2.7.1-alpine
+#FROM library/sonarqube:5.6-alpine 
 
 # Add a user that can `sudo`.
 #RUN useradd -m user \
