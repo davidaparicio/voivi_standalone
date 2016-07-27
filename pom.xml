@@ -29,6 +29,7 @@
         <itest.version>2.19.1</itest.version>
         <itant.version>1.8</itant.version>
         <mongo.version>1.50.5</mongo.version>
+        <javad.version>2.10.4</javad.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -238,5 +239,17 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javad.version}</version>
+                <configuration>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>
