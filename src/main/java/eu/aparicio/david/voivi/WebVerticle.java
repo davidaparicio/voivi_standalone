@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MyFirstVerticle extends AbstractVerticle {
+public class WebVerticle extends AbstractVerticle {
 
     // mongoClient configuration
     private JsonObject mongoConfig;
@@ -28,7 +28,7 @@ public class MyFirstVerticle extends AbstractVerticle {
     // Store our product
     public static final String COLLECTION = "feedbacks";
 
-    private Logger logger = Logger.getLogger(MyFirstVerticle.class.getName());
+    private Logger logger = Logger.getLogger(WebVerticle.class.getName());
     private String content_type = "application/json; charset=utf-8";
 
     // Check if the database is not empty

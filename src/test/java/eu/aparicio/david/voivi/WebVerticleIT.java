@@ -11,7 +11,7 @@ import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class MyFirstVerticleIT {
+public class WebVerticleIT {
 
     @BeforeClass
     public static void configureRestAssured() {

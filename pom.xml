@@ -12,7 +12,7 @@
         <!-- JAVA VERSION USED = JAVA 8 -->
         <javac.version>1.8</javac.version>
         <!-- the main verticle class name -->
-        <main.verticle>eu.aparicio.david.voivi.MyFirstVerticle</main.verticle>
+        <main.verticle>eu.aparicio.david.voivi.WebVerticle</main.verticle>
         <IT.configfile>config[IT].json</IT.configfile> <!-- [] helps to remove the last line in the ps -->
         <vertx.version>3.3.2</vertx.version>
         <junit.version>4.12</junit.version>
@@ -46,6 +46,12 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <!-- Hazelcast (Cluster) Dependencies -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-hazelcast</artifactId>
             <version>${vertx.version}</version>
         </dependency>
         <!-- VERT.X TEST Dependencies -->

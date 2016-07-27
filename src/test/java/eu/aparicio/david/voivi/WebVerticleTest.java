@@ -6,7 +6,6 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.streams.StreamBase;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -22,7 +21,7 @@ import java.net.ServerSocket;
 
 @RunWith(VertxUnitRunner.class)
 
-public class MyFirstVerticleTest {
+public class WebVerticleTest {
     private Vertx vertx;
     private Integer port;
     private String testId = "testId";
@@ -61,7 +60,7 @@ public class MyFirstVerticleTest {
 
         // We pass the options as the second parameter of the deployVerticle method.
         vertx.deployVerticle(
-                MyFirstVerticle.class.getName(),
+                WebVerticle.class.getName(),
                 deployOptions,
                 context.asyncAssertSuccess());
 
