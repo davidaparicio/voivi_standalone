@@ -4,9 +4,24 @@ import io.vertx.core.json.JsonObject;
 
 import java.time.Instant;
 
+/**
+ * Feedback is the object to represent a Feedback
+ *
+ * @author David Aparicio
+ * @version 0.0.1-SNAPSHOT
+ */
+
 public class Feedback {
 
+    /**
+     * The id in the MongoDB
+     * It returns by the database
+     *
+     * @see Feedback#getId()
+     * @see Feedback#setId(String)
+     */
     private String _id;
+
     private String sentence;
     private Double sentiment;
     private String subject;
@@ -15,6 +30,20 @@ public class Feedback {
     private String userId;
     private Long timestamp;
 
+
+    /**
+     * Constructor Feedback
+     * from the user input
+     *
+     * @param sentence  The sentence
+     * @param sentiment The sentiment calculated of the sentence
+     * @param subject   The subject calculated of the sentence
+     * @param verb      The verb calculated of the sentence
+     * @param object    The object calculated of the object
+     * @param userId    The unique userId of the current user
+     *
+     * @see Feedback#_id
+     */
     public Feedback(String sentence, Double sentiment, String subject, String verb, String object, String userId) {
         this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
@@ -26,6 +55,14 @@ public class Feedback {
         this.userId = userId;
     }
 
+    /**
+     * Constructor Feedback
+     * of a Feedback from the JSON representation
+     *
+     * @param json JSON received from the REST API
+     *
+     * @see Feedback#Feedback(String, Double, String, String, String, String)
+     */
     public Feedback(JsonObject json) {
         this._id = json.getString("_id");
         this.timestamp = json.getLong("timestamp");
@@ -37,6 +74,9 @@ public class Feedback {
         this.userId = json.getString("userId");
     }
 
+    /**
+     * Constructor of a empty Feedback
+     */
     public Feedback() {
         this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
