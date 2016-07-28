@@ -31,6 +31,7 @@ public class Feedback {
     private String object;
     private String userId;
     private Long timestamp;
+    private Boolean alreadyComputed = false;
 
 
     /**
@@ -127,35 +128,45 @@ public class Feedback {
     }
 
     public void setSentiment(Double sentiment) {
-        try {
-            Double.parseDouble(sentiment.toString());
-            this.sentiment = sentiment;
-        } catch(Exception e) {
-            this.sentiment = -1.;
+        if(!alreadyComputed){
+            this.sentiment = 0.; //default
+            try {
+                Double.parseDouble(sentiment.toString());
+                this.sentiment = sentiment;
+            } catch(Exception e) {
+                this.setVariables();
+            }
         }
     }
 
     public void setSubject(String subject) {
-        if (StringUtils.isNotBlank(subject)) {
-            this.subject = subject;
-        } else {
-            this.subject = "/";
+        if(!alreadyComputed){
+            if (StringUtils.isNotBlank(subject)) {
+                this.subject = subject;
+            } else {
+                this.setVariables();
+            }
         }
+
     }
 
     public void setVerb(String verb) {
-        if (StringUtils.isNotBlank(verb)) {
-            this.verb = verb;
-        } else {
-            this.verb = "/";
+        if(!alreadyComputed) {
+            if (StringUtils.isNotBlank(verb)) {
+                this.verb = verb;
+            } else {
+                this.setVariables();
+            }
         }
     }
 
     public void setObject(String object) {
-        if (StringUtils.isNotBlank(object)) {
-            this.object = object;
-        } else {
-            this.object = "/";
+        if(!alreadyComputed){
+            if (StringUtils.isNotBlank(object)) {
+                this.object = object;
+            } else {
+                this.setVariables();
+            }
         }
     }
 
@@ -165,6 +176,14 @@ public class Feedback {
 
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    private void setVariables(){
+        this.sentiment += 100.;
+        this.subject = "*";
+        this.verb = "*";
+        this.object = "*";
+        this.alreadyComputed = true;
     }
 
     @Override
