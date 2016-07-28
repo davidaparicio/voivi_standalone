@@ -16,6 +16,7 @@
         <IT.configfile>config[IT].json</IT.configfile> <!-- [] helps to remove the last line in the ps -->
         <vertx.version>3.3.2</vertx.version>
         <junit.version>4.12</junit.version>
+        <utili.version>3.4</utili.version>
         <gsonp.version>2.7</gsonp.version>
         <sfire.version>2.19.1</sfire.version>
         <StNLP.version>3.6.0</StNLP.version>
@@ -53,6 +54,12 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
             <version>${vertx.version}</version>
+        </dependency>
+        <!-- String isNullOrBlank function -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${utili.version}</version>
         </dependency>
         <!-- VERT.X TEST Dependencies -->
         <dependency>

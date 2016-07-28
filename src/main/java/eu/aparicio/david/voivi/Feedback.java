@@ -1,6 +1,8 @@
 package eu.aparicio.david.voivi;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.Instant;
 
@@ -117,23 +119,44 @@ public class Feedback {
     public void setId(String _id) { this._id = _id; }
 
     public void setSentence(String sentence) {
-        this.sentence = sentence;
+        if (StringUtils.isNotBlank(sentence)) {
+            this.sentence = sentence;
+        } else {
+            this.sentence = "/";
+        }
     }
 
     public void setSentiment(Double sentiment) {
-        this.sentiment = sentiment;
+        try {
+            Double.parseDouble(sentiment.toString());
+            this.sentiment = sentiment;
+        } catch(Exception e) {
+            this.sentiment = -1.;
+        }
     }
 
     public void setSubject(String subject) {
-        this.subject = subject;
+        if (StringUtils.isNotBlank(subject)) {
+            this.subject = subject;
+        } else {
+            this.subject = "/";
+        }
     }
 
     public void setVerb(String verb) {
-        this.verb = verb;
+        if (StringUtils.isNotBlank(verb)) {
+            this.verb = verb;
+        } else {
+            this.verb = "/";
+        }
     }
 
     public void setObject(String object) {
-        this.object = object;
+        if (StringUtils.isNotBlank(object)) {
+            this.object = object;
+        } else {
+            this.object = "/";
+        }
     }
 
     public void setUserId(String userId) {

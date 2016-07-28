@@ -104,6 +104,7 @@ public class WebVerticle extends AbstractVerticle {
         mongoClient.find(COLLECTION, new JsonObject(), res -> {
             if (res.succeeded()) {
                 List<JsonObject> objects = res.result();
+                //Feedback::new use the Feedback(JsonObject json) constructor
                 List<Feedback> feedbacks = objects.stream().map(Feedback::new).collect(Collectors.toList());
                 routingContext.response()
                         .putHeader("content-type", content_type)

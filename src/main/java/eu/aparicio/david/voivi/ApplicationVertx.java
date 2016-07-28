@@ -39,13 +39,20 @@ public class ApplicationVertx {
             if (ar.succeeded()){
                 Vertx vertx = ar.result();
                 logger.finest("[ApplicationVertx] - Start the deployment ("+Thread.currentThread().getName()+")");
-                vertx.deployVerticle(
-                        WebVerticle.class.getName(),
+                vertx.deployVerticle(WebVerticle.class.getName(),
                         new DeploymentOptions()
                         .setConfig(jsonConfig)
                         .setInstances(1)
                         .setWorker(true)
                         //.setHa(true)
+                        , deployResult -> {
+                            if (deployResult.succeeded()) {
+                                logger.finest("Deployment id is: " + deployResult.result());
+                            } else {
+                                logger.severe("[ApplicationVertx] - deployVerticle fail ("+Thread.currentThread().getName()+")");
+                                deployResult.cause().printStackTrace();
+                            }
+                        }
                 );
                 logger.finest("[ApplicationVertx] - Deployment successful ("+Thread.currentThread().getName()+")");
             } else {
