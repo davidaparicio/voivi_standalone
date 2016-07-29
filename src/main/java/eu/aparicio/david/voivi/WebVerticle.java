@@ -1,5 +1,6 @@
 package eu.aparicio.david.voivi;
 
+import com.google.gson.Gson;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -15,6 +16,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.List;
@@ -27,6 +29,8 @@ public class WebVerticle extends AbstractVerticle {
     private MongoClient mongoClient;
     // Store our product
     public static final String COLLECTION = "feedbacks";
+
+    Gson gson = new Gson(); //Json Parser
 
     private Logger logger = Logger.getLogger(WebVerticle.class.getName());
     private String content_type = "application/json; charset=utf-8";
@@ -144,21 +148,42 @@ public class WebVerticle extends AbstractVerticle {
     }
 
     private void addOne(RoutingContext routingContext) {
-        final Feedback newFeedback = Json.decodeValue(routingContext.getBodyAsString(), Feedback.class);
+        final Boolean[] success = {true};
+        ArrayList<String> ids = new ArrayList<String>();
 
-        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
+        JsonObject json = routingContext.getBodyAsJson();
+        String sentences = json.getString("sentence");
+
+        if (sentences.isEmpty() || sentences == "."){
+            routingContext.response().setStatusCode(406).end();
+        }
+
+        for (String sentence: sentences.split("\\.")) {
+            JsonObject sentenceJson = json.put("sentence", sentence);
+
+            System.out.println(sentenceJson.toString());
+
+            final Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
+            mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
             {
                 if (res.failed()) {
                     loggerWarning("addOne",res);
-                    routingContext.response().setStatusCode(404).end();
+                    success[0] = false;
                 } else {
                     newFeedback.setId(res.result());
-                    routingContext.response()
-                            .setStatusCode(201)
-                            .putHeader("content-type", content_type)
-                            .end(Json.encodePrettily(newFeedback));
+                    ids.add(res.result());
                 }
             });
+        }
+
+        if (success[0]){
+            routingContext.response()
+                    .setStatusCode(201)
+                    .putHeader("content-type", content_type)
+                    .end(gson.toJson(ids));
+        } else {
+            routingContext.response().setStatusCode(404).end();
+        }
     }
 
     private void deleteOne(RoutingContext routingContext) {
