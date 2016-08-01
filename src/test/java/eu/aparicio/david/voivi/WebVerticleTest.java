@@ -8,6 +8,7 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.TestOptions;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -64,6 +65,7 @@ public class WebVerticleTest {
                 deployOptions,
                 context.asyncAssertSuccess());
 
+        //TestOptions options = new TestOptions().setTimeout(1000);
         //System.out.println("[TEST] - Setup finished");
     }
 

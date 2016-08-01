@@ -1,10 +1,7 @@
 package eu.aparicio.david.voivi;
 
 import com.google.gson.Gson;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -147,11 +144,28 @@ public class WebVerticle extends AbstractVerticle {
         }
     }
 
+    private void addSentence(String sentence, Future<String> future, JsonObject json){
+        JsonObject sentenceJson = json.put("sentence", sentence);
+        Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
+
+        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
+        {
+            if (res.failed()) {
+                loggerWarning("addOne", res);
+                future.fail(res.cause());
+            } else {
+                newFeedback.setId(res.result());
+                future.complete(res.result());
+            }
+        });
+    }
+
     private void addOne(RoutingContext routingContext) {
-        final Boolean[] success = {true};
-        ArrayList<String> ids = new ArrayList<String>();
+        ArrayList<String> idsArray = new ArrayList();
+        ArrayList<Future> futureArray = new ArrayList();
 
         JsonObject json = routingContext.getBodyAsJson();
+        Feedback newFeedback = Json.decodeValue(json.toString(), Feedback.class);
         String sentences = json.getString("sentence");
 
         if (sentences.isEmpty() || sentences == "."){
@@ -159,31 +173,26 @@ public class WebVerticle extends AbstractVerticle {
         }
 
         for (String sentence: sentences.split("\\.")) {
-            JsonObject sentenceJson = json.put("sentence", sentence);
+            Future<String> future = Future.future();
+            futureArray.add(future);
+            addSentence(sentence,future,json);
+        }
 
-            System.out.println(sentenceJson.toString());
-
-            final Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
-            mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
-            {
-                if (res.failed()) {
-                    loggerWarning("addOne",res);
-                    success[0] = false;
-                } else {
-                    newFeedback.setId(res.result());
-                    ids.add(res.result());
+        CompositeFuture.all(futureArray).setHandler(ar -> {
+            if (ar.succeeded()) {
+                for (Future<String> future: futureArray) {
+                    idsArray.add(future.result());
                 }
-            });
-        }
-
-        if (success[0]){
-            routingContext.response()
-                    .setStatusCode(201)
-                    .putHeader("content-type", content_type)
-                    .end(gson.toJson(ids));
-        } else {
-            routingContext.response().setStatusCode(404).end();
-        }
+                newFeedback.setId(idsArray.get(0)); // kludge/fix/Macgyver
+                routingContext.response()
+                        .setStatusCode(201)
+                        .putHeader("content-type", content_type)
+                        .end(Json.encodePrettily(newFeedback));
+                        //.end(gson.toJson(idsArray));
+            } else {
+                routingContext.response().setStatusCode(404).end();
+            }
+        });
     }
 
     private void deleteOne(RoutingContext routingContext) {
