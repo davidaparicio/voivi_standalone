@@ -71,7 +71,7 @@ public class WebVerticleIT {
         get("/api/feedbacks/" + newFeedbackTest.getId()).then()
                 .assertThat()
                 .statusCode(200)
-                .body("[0].sentence", equalTo("You dislike IT!"))
+                .body("[0].sentence", equalTo("You dislike IT !"))
                 .body("[0].sentiment", equalTo(10.f))
                 .body("[0].subject", equalTo("You"))
                 .body("[0].verb", equalTo("dislike"))

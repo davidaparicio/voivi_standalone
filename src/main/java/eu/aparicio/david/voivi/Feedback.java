@@ -132,7 +132,7 @@ public class Feedback {
             try {
                 Double.parseDouble(sentiment.toString());
                 this.sentiment = sentiment;
-            } catch(NumberFormatException e) {
+            } catch(NullPointerException e) {
                 this.setVariables();
             }
         }
