@@ -26,7 +26,7 @@ import java.net.ServerSocket;
 public class WebVerticleTest {
 
     @Rule
-    public Timeout rule = Timeout.seconds(1);
+    public Timeout rule = Timeout.seconds(2);
 
     private Vertx vertx;
     private Integer port;
@@ -34,12 +34,9 @@ public class WebVerticleTest {
 
     @Before
     public void setUp(TestContext context) throws IOException {
-        //System.out.println("[TEST] - Setup started");
 
         Gson gson = new Gson(); //Json Parser
         String jsonString = null;
-
-        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
         // Read the configuration file
         try {
@@ -60,8 +57,6 @@ public class WebVerticleTest {
                 .put("db_name", "voivi_UnitTest"); //change to the test database
         socket.close();
 
-        //System.out.println(jsonConfig.toString());
-
         DeploymentOptions deployOptions = new DeploymentOptions().setConfig(jsonConfig);
 
         // We pass the options as the second parameter of the deployVerticle method.
@@ -69,9 +64,6 @@ public class WebVerticleTest {
                 WebVerticle.class.getName(),
                 deployOptions,
                 context.asyncAssertSuccess());
-
-        //TestOptions options = new TestOptions().setTimeout(1000);
-        //System.out.println("[TEST] - Setup finished");
     }
 
     @After

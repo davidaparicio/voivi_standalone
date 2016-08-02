@@ -30,7 +30,7 @@ public class WebVerticle extends AbstractVerticle {
     Gson gson = new Gson(); //Json Parser
 
     private Logger logger = Logger.getLogger(WebVerticle.class.getName());
-    private String content_type = "application/json; charset=utf-8";
+    private String contentType = "application/json; charset=utf-8";
 
     // Check if the database is not empty
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
@@ -53,11 +53,11 @@ public class WebVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> fut) {
         mongoConfig = new JsonObject()
-                .put("connection_string",
-                    "mongodb://" +
-                    config().getString("mongo.ip", "localhost")+ ":" +
-                    config().getInteger("mongo.port", 27017))
-                .put("db_name", config().getString("db_name", "voivi"));
+            .put("connection_string",
+                "mongodb://" +
+                config().getString("mongo.ip", "localhost")+ ":" +
+                config().getInteger("mongo.port", 27017))
+            .put("db_name", config().getString("db_name", "voivi"));
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
 
         createSomeData(nothing -> startWebApp(http -> completeStartup(http,fut)),fut);
@@ -74,14 +74,13 @@ public class WebVerticle extends AbstractVerticle {
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route("/*").handler(StaticHandler.create("webroot"));
 
-        vertx
-                .createHttpServer()
-                .requestHandler(router::accept)
-                .listen(
-                    // Retrieve the port from the configuration, default to 8080.
-                    config().getInteger("http.port", 8080),
-                    next::handle
-                );
+        vertx.createHttpServer()
+            .requestHandler(router::accept)
+            .listen(
+                // Retrieve the port from the configuration, default to 8080.
+                config().getInteger("http.port", 8080),
+                next::handle
+            );
     }
 
     private void completeStartup(AsyncResult<HttpServer> http, Future<Void> fut) {
@@ -108,7 +107,7 @@ public class WebVerticle extends AbstractVerticle {
                 //Feedback::new use the Feedback(JsonObject json) constructor
                 List<Feedback> feedbacks = objects.stream().map(Feedback::new).collect(Collectors.toList());
                 routingContext.response()
-                        .putHeader("content-type", content_type)
+                        .putHeader("content-type", contentType)
                         .end(Json.encodePrettily(feedbacks));
             } else {
                 loggerWarning("getAll",res);
@@ -127,7 +126,7 @@ public class WebVerticle extends AbstractVerticle {
                     if (count.result() == 1) {
                         mongoClient.find(COLLECTION, new JsonObject().put("_id", id), res -> {
                             if (res.succeeded()) {
-                                routingContext.response().putHeader("content-type", content_type).end(Json.encodePrettily(res.result()));
+                                routingContext.response().putHeader("content-type", contentType).end(Json.encodePrettily(res.result()));
                             } else {
                                 routingContext.response().setStatusCode(404).end(); loggerWarning("getOne",res);
                             }
@@ -186,9 +185,8 @@ public class WebVerticle extends AbstractVerticle {
                 newFeedback.setId(idsArray.get(0)); // kludge/fix/Macgyver
                 routingContext.response()
                         .setStatusCode(201)
-                        .putHeader("content-type", content_type)
+                        .putHeader("content-type", contentType)
                         .end(Json.encodePrettily(newFeedback));
-                        //.end(gson.toJson(idsArray));
             } else {
                 routingContext.response().setStatusCode(404).end();
             }

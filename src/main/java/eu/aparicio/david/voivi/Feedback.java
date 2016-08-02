@@ -2,7 +2,6 @@ package eu.aparicio.david.voivi;
 
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.Instant;
 
@@ -133,7 +132,7 @@ public class Feedback {
             try {
                 Double.parseDouble(sentiment.toString());
                 this.sentiment = sentiment;
-            } catch(Exception e) {
+            } catch(NumberFormatException e) {
                 this.setVariables();
             }
         }

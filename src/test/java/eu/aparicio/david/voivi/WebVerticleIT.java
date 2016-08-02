@@ -18,7 +18,6 @@ public class WebVerticleIT {
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = Integer.getInteger("http.port",8080);
         RestAssured.defaultParser = Parser.JSON;
-        //System.out.println("port = "+RestAssured.port);
     }
 
     @AfterClass
