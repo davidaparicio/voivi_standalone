@@ -18,20 +18,20 @@ import java.util.Properties;
 
 public class Sentiment {
     private Logger logger = LoggerFactory.getLogger(Sentiment.class.getName());
-    private StanfordCoreNLP pipeline;
+    private static StanfordCoreNLP pipeline;
 
     private String[] sentimentText = {"Very Negative","Negative", "Neutral", "Positive", "Very Positive"};
-    public int mainSentiment = -1;
+    public static double mainSentiment = -1.;
 
-    public void init() {
+    public static void init() {
         // Create the Stanford CoreNLP pipeline
         Properties props = PropertiesUtils.asProperties("annotators", "tokenize, ssplit, parse, sentiment");
         pipeline = new StanfordCoreNLP(props); //process the pipeline
     }
 
-    public JsonArray findSentiment(String paragraph) {
+    public static double findSentiment(String paragraph) {
         JsonArray sentimentArray = new JsonArray();
-        mainSentiment = 0;
+        mainSentiment = 0.;
         if (paragraph != null && paragraph.length() > 0) {
             int longest = 0;
             Annotation annotation = pipeline.process(paragraph);
@@ -53,6 +53,6 @@ public class Sentiment {
                 }
             }
         }
-        return sentimentArray;
+        return mainSentiment;
     }
 }

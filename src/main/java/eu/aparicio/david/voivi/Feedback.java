@@ -1,9 +1,13 @@
 package eu.aparicio.david.voivi;
 
+import edu.stanford.nlp.util.Triple;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
+
+import static eu.aparicio.david.voivi.WebVerticle.websentiment;
+import static eu.aparicio.david.voivi.WebVerticle.websubject;
 
 /**
  * Feedback is the object to represent a Feedback
@@ -178,10 +182,11 @@ public class Feedback {
     }
 
     private void setVariables(){
-        this.sentiment += 100.;
-        this.subject = "*";
-        this.verb = "*";
-        this.object = "*";
+        this.sentiment = websentiment.findSentiment(this.sentence);
+        Triple triple = websubject.findSubject(this.sentence);
+        this.subject = (String) triple.first;
+        this.verb = (String) triple.second;
+        this.object = (String) triple.third;
         this.alreadyComputed = true;
     }
 

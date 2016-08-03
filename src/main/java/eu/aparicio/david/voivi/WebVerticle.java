@@ -1,11 +1,9 @@
 package eu.aparicio.david.voivi;
 
 import com.google.gson.Gson;
-
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.process.DocumentPreprocessor;
-
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
@@ -16,17 +14,15 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class WebVerticle extends AbstractVerticle {
 
@@ -35,6 +31,9 @@ public class WebVerticle extends AbstractVerticle {
     private MongoClient mongoClient;
     // Store our product
     public static final String COLLECTION = "feedbacks";
+
+    public static Sentiment websentiment = new Sentiment();
+    public static Subject websubject = new Subject();
 
     Gson gson = new Gson(); //Json Parser
 
@@ -68,6 +67,9 @@ public class WebVerticle extends AbstractVerticle {
                 config().getInteger("mongo.port", 27017))
             .put("db_name", config().getString("db_name", "voivi"));
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
+
+        websentiment.init();
+        websubject.init();
 
         createSomeData(nothing -> startWebApp(http -> completeStartup(http,fut)),fut);
     }
@@ -174,15 +176,15 @@ public class WebVerticle extends AbstractVerticle {
 
         JsonObject json = routingContext.getBodyAsJson();
         Feedback newFeedback = Json.decodeValue(json.toString(), Feedback.class);
-        String sentences = json.getString("sentence");
+        String paragraph = json.getString("sentence");
 
-        if (sentences.isEmpty()){
+        if (paragraph.isEmpty()){
             routingContext.response().setStatusCode(406).end();
         }
 
-        Reader reader = new StringReader(sentences);
+        //Split the paragraph to setences to be processed
+        Reader reader = new StringReader(paragraph);
         DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-
         for (List<HasWord> sentenceWords : dp) {
             String sentence = Sentence.listToString(sentenceWords);
             Future<String> future = Future.future();
