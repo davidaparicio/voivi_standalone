@@ -11,10 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 public class ApplicationVertx {
-
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(ApplicationVertx.class);
     private ApplicationVertx() {
         throw new IllegalAccessError("Utility class");

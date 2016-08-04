@@ -22,24 +22,21 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class WebVerticle extends AbstractVerticle {
-
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(WebVerticle.class);
     // mongoClient configuration
     private JsonObject mongoConfig;
     private MongoClient mongoClient;
+
+    protected static final SentimentAnalyzer websentiment = new SentimentAnalyzer();
+    protected static final SubjectAnalyzer websubject = new SubjectAnalyzer();
+
     // Store our product
-    public static final String COLLECTION = "feedbacks";
-
-    public static SentimentAnalyzer websentiment = new SentimentAnalyzer();
-    public static SubjectAnalyzer websubject = new SubjectAnalyzer();
-
-    Gson gson = new Gson(); //Json Parser
-
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(WebVerticle.class);
+    private static final String COLLECTION = "feedbacks";
     private String contentType = "application/json; charset=utf-8";
+    private Gson gson = new Gson(); //Json Parser
 
     // Check if the database is not empty
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
@@ -69,8 +66,8 @@ public class WebVerticle extends AbstractVerticle {
             .put("db_name", config().getString("db_name", "voivi"));
         mongoClient = MongoClient.createShared(vertx,mongoConfig);
 
-        websentiment.init();
-        websubject.init();
+        SentimentAnalyzer.init();
+        SubjectAnalyzer.init();
 
         createSomeData(nothing -> startWebApp(http -> completeStartup(http,fut)),fut);
     }

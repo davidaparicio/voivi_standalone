@@ -2,14 +2,12 @@ package eu.aparicio.david.voivi;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
-import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.PropertiesUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
@@ -19,7 +17,6 @@ public class SentimentAnalyzer {
     private static StanfordCoreNLP pipeline;
 
     private String[] sentimentText = {"Very Negative","Negative", "Neutral", "Positive", "Very Positive"};
-    public static double mainSentiment = -1.;
 
     public static void init() {
         // Create the Stanford CoreNLP pipeline
@@ -29,8 +26,8 @@ public class SentimentAnalyzer {
 
     }
 
-    public static double findSentiment(String paragraph) {
-        mainSentiment = 0.;
+    public double findSentiment(String paragraph) {
+        double mainSentiment = -1.;
         if (paragraph != null && paragraph.length() > 0) {
             int longest = 0;
             Annotation annotation = pipeline.process(paragraph);
@@ -40,8 +37,8 @@ public class SentimentAnalyzer {
                 Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
                 String partText = sentence.toString();
                 int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
-                System.out.println("Sentence #" + sentenceNo + ": " + partText);
-                System.out.println("Sentiment: "+sentiment);
+                logger.trace("Sentence #" + sentenceNo + ": " + partText);
+                logger.trace("Sentiment: "+sentiment);
                 if (partText.length() > longest) {
                     mainSentiment = sentiment;
                     longest = partText.length();

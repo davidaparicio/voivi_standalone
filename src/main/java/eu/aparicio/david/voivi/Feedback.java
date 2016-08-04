@@ -3,6 +3,7 @@ package eu.aparicio.david.voivi;
 import edu.stanford.nlp.util.Triple;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
@@ -17,6 +18,7 @@ import static eu.aparicio.david.voivi.WebVerticle.websubject;
  */
 
 public class Feedback {
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Feedback.class);
 
     /**
      * The id in the MongoDB
@@ -137,6 +139,8 @@ public class Feedback {
                 Double.parseDouble(sentiment.toString());
                 this.sentiment = sentiment;
             } catch(NullPointerException e) {
+                // It is perfectly acceptable to not handle "e" here
+                logger.trace("setSentiment/NullPointerException " + e);
                 this.setVariables();
             }
         }

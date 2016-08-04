@@ -8,7 +8,6 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.PropertiesUtils;
 import edu.stanford.nlp.util.Triple;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
@@ -24,7 +23,7 @@ public class SubjectAnalyzer {
         pipeline = new StanfordCoreNLP(props); //process the pipeline
     }
 
-    public static Triple findSubject(String paragraph) {
+    public Triple findSubject(String paragraph) {
         Triple subjectTriple = new Triple("","","");
         // Annotate an example document.
         Annotation doc = new Annotation(paragraph);
@@ -32,11 +31,11 @@ public class SubjectAnalyzer {
         // Loop over sentences in the document
         int sentenceNo = 0;
         for (CoreMap sentence : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
-            System.out.println("Sentence #" + ++sentenceNo + ": " + sentence.get(CoreAnnotations.TextAnnotation.class));
+            logger.trace("Sentence #" + ++sentenceNo + ": " + sentence.get(CoreAnnotations.TextAnnotation.class));
             // Get the OpenIE triples for the sentence
             Collection<RelationTriple> triples = sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class);
             // Print the triples
-            if (triples != null && triples.size()>0) {
+            if (triples != null && !(triples.isEmpty())) {
                 RelationTriple triple = triples.iterator().next();
                 subjectTriple.setFirst(triple.subjectLemmaGloss());
                 subjectTriple.setSecond(triple.relationLemmaGloss());
