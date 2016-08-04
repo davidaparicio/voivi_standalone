@@ -243,6 +243,7 @@
                                     <arg value="${project.artifactId}-${project.version}-fat.jar"/>
                                     <arg value="-conf"/>
                                     <arg value="${project.build.directory}/test-classes/configIT.json"/>
+                                    <arg value="-worker"/>
                                 </exec>
                             </target>
                         </configuration>
