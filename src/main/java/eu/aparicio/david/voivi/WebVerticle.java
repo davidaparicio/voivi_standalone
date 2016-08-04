@@ -32,8 +32,8 @@ public class WebVerticle extends AbstractVerticle {
     // Store our product
     public static final String COLLECTION = "feedbacks";
 
-    public static Sentiment websentiment = new Sentiment();
-    public static Subject websubject = new Subject();
+    public static SentimentAnalyzer websentiment = new SentimentAnalyzer();
+    public static SubjectAnalyzer websubject = new SubjectAnalyzer();
 
     Gson gson = new Gson(); //Json Parser
 

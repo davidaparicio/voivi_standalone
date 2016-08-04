@@ -8,16 +8,14 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.PropertiesUtils;
 import edu.stanford.nlp.util.Triple;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Properties;
 
-public class Subject {
-    private Logger logger = LoggerFactory.getLogger(Subject.class.getName());
+public class SubjectAnalyzer {
+    private Logger logger = LoggerFactory.getLogger(SubjectAnalyzer.class.getName());
     private static StanfordCoreNLP pipeline;
 
     public static void init() {
