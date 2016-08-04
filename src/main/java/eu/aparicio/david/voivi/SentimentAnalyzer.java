@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 public class SentimentAnalyzer {
-    private Logger logger = LoggerFactory.getLogger(SentimentAnalyzer.class.getName());
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(SentimentAnalyzer.class);
     private static StanfordCoreNLP pipeline;
 
     private String[] sentimentText = {"Very Negative","Negative", "Neutral", "Positive", "Very Positive"};

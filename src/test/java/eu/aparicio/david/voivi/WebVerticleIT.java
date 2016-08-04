@@ -25,7 +25,7 @@ public class WebVerticleIT {
         RestAssured.reset();
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void checkThatWeCanRetrieveIndividualProduct() {
 
         // Get the list of feedbacks, ensure it's a success and extract the first id.
@@ -48,7 +48,7 @@ public class WebVerticleIT {
                 .body("[0]._id", equalTo(_id));
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void checkWeCanAddAndDeleteAProduct() {
         // Create a new feedback and retrieve the result (as a Feedback instance).
         Feedback newFeedbackTest = given()

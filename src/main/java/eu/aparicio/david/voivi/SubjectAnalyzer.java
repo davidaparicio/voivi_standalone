@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 public class SubjectAnalyzer {
-    private Logger logger = LoggerFactory.getLogger(SubjectAnalyzer.class.getName());
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(SubjectAnalyzer.class);
     private static StanfordCoreNLP pipeline;
 
     public static void init() {
@@ -41,7 +41,7 @@ public class SubjectAnalyzer {
                 subjectTriple.setFirst(triple.subjectLemmaGloss());
                 subjectTriple.setSecond(triple.relationLemmaGloss());
                 subjectTriple.setThird(triple.objectLemmaGloss());
-                System.out.println("(" +
+                logger.trace("(" +
                         triple.subjectLemmaGloss() + "," +
                         triple.relationLemmaGloss() + "," +
                         triple.objectLemmaGloss() + ")");
