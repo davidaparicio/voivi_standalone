@@ -57,7 +57,7 @@ public class WebVerticleTest {
                 .put("db_name", "voivi_UnitTest"); //change to the test database
         socket.close();
 
-        DeploymentOptions deployOptions = new DeploymentOptions().setConfig(jsonConfig);
+        DeploymentOptions deployOptions = new DeploymentOptions().setConfig(jsonConfig).setWorker(true);
 
         // We pass the options as the second parameter of the deployVerticle method.
         vertx.deployVerticle(
