@@ -122,4 +122,87 @@ public class WebVerticleTest {
                 })
                 .end();
     }
+
+    @Test
+    public void checkThatWeCanAddSentenceOnly(TestContext context) {
+        Async async = context.async();
+        final String json = Json.encodePrettily(new Feedback("I love empty!!", null, "", "", "", "clffc1ff-clff-clff-clff-clffclffclff"));
+        final String length = Integer.toString(json.length());
+        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler(response -> {
+                    context.assertEquals(response.statusCode(), 201);
+                    context.assertTrue(response.headers().get("content-type").contains("application/json"));
+                    response.bodyHandler(body -> {
+                        final Feedback responseFeedback = Json.decodeValue(body.toString(), Feedback.class);
+                        context.assertEquals(responseFeedback.getSentence(), "I love empty!!");
+                        context.assertEquals(responseFeedback.getSentiment(), 2.);
+                        context.assertEquals(responseFeedback.getSubject(), "I");
+                        context.assertEquals(responseFeedback.getVerb(), "love");
+                        context.assertEquals(responseFeedback.getObject(), "!!");
+                        context.assertEquals(responseFeedback.getUserId(), "clffc1ff-clff-clff-clff-clffclffclff");
+                        context.assertNotNull(responseFeedback.getId());
+                        testId = responseFeedback.getId();
+                        checkThatWeCanDelete(context);
+                        async.complete();
+                    });
+                })
+                .write(json)
+                .end();
+    }
+
+    @Test
+    public void checkThatWeCanAddSentences(TestContext context) {
+        Async async = context.async();
+        final String json = Json.encodePrettily(new Feedback("This movie doesn't care about cleverness, wit or any other kind of intelligent humor. Those who find ugly meanings in beautiful things are corrupt without being charming. There are slow and repetitive parts, but it has just enough spice to keep it interesting.", null, "", "", "", "aaffaaff-aaff-aaff-aaff-aaffaaffaaff"));
+        final String length = Integer.toString(json.length());
+        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler(response -> {
+                    context.assertEquals(response.statusCode(), 201);
+                    context.assertTrue(response.headers().get("content-type").contains("application/json"));
+                    response.bodyHandler(body -> {
+                        final Feedback responseFeedback = Json.decodeValue(body.toString(), Feedback.class);
+                        context.assertEquals(responseFeedback.getUserId(), "aaffaaff-aaff-aaff-aaff-aaffaaffaaff");
+                        context.assertNotNull(responseFeedback.getId());
+                        testId = responseFeedback.getId();
+                        checkThatWeCanDelete(context);
+                        async.complete();
+                    });
+                })
+                .write(json)
+                .end();
+    }
+
+    @Test
+    public void checkwithoutsentence(TestContext context) {
+        Async async = context.async();
+        final String json = Json.encodePrettily(new Feedback("I love tests!!", 20., "I", "love", "tests", "clefc1ef-clef-clef-clef-clefclefclef"));
+        final String length = Integer.toString(json.length());
+        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler(response -> {
+                    context.assertEquals(response.statusCode(), 201);
+                    context.assertTrue(response.headers().get("content-type").contains("application/json"));
+                    response.bodyHandler(body -> {
+                        final Feedback responseFeedback = Json.decodeValue(body.toString(), Feedback.class);
+                        context.assertEquals(responseFeedback.getSentence(), "I love tests!!");
+                        context.assertEquals(responseFeedback.getSentiment(), 20.);
+                        context.assertEquals(responseFeedback.getSubject(), "I");
+                        context.assertEquals(responseFeedback.getVerb(), "love");
+                        context.assertEquals(responseFeedback.getObject(), "tests");
+                        context.assertEquals(responseFeedback.getUserId(), "clefc1ef-clef-clef-clef-clefclefclef");
+                        context.assertNotNull(responseFeedback.getId());
+                        testId = responseFeedback.getId();
+                        checkThatWeCanDelete(context);
+                        async.complete();
+                    });
+                })
+                .write(json)
+                .end();
+    }
+
 }

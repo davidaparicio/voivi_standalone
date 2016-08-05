@@ -1,6 +1,5 @@
 package eu.aparicio.david.voivi;
 
-import com.google.gson.Gson;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.process.DocumentPreprocessor;
@@ -36,7 +35,6 @@ public class WebVerticle extends AbstractVerticle {
     // Store our product
     private static final String COLLECTION = "feedbacks";
     private String contentType = "application/json; charset=utf-8";
-    private Gson gson = new Gson(); //Json Parser
 
     // Check if the database is not empty
     private void createSomeData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
