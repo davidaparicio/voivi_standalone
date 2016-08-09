@@ -150,7 +150,7 @@ public class WebVerticle extends AbstractVerticle {
         }
     }
 
-    private void addSentence(String sentence, Future<String> future, JsonObject json){
+    private void addSentence(String sentence, Future<Feedback> future, JsonObject json){
         JsonObject sentenceJson = json.put("sentence", sentence);
         Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
 
@@ -161,17 +161,16 @@ public class WebVerticle extends AbstractVerticle {
                 future.fail(res.cause());
             } else {
                 newFeedback.setId(res.result());
-                future.complete(res.result());
+                future.complete(newFeedback);
             }
         });
     }
 
     private void addOne(RoutingContext routingContext) {
-        ArrayList<String> idsArray = new ArrayList();
         ArrayList<Future> futureArray = new ArrayList();
 
         JsonObject json = routingContext.getBodyAsJson();
-        Feedback newFeedback = Json.decodeValue(json.toString(), Feedback.class);
+        List<Feedback> feedbacks = new ArrayList<>();
         String paragraph = json.getString("sentence");
 
         if (paragraph.isEmpty()){
@@ -183,21 +182,20 @@ public class WebVerticle extends AbstractVerticle {
         DocumentPreprocessor dp = new DocumentPreprocessor(reader);
         for (List<HasWord> sentenceWords : dp) {
             String sentence = Sentence.listToString(sentenceWords);
-            Future<String> future = Future.future();
+            Future<Feedback> future = Future.future();
             futureArray.add(future);
             addSentence(sentence,future,json);
         }
 
         CompositeFuture.all(futureArray).setHandler(ar -> {
             if (ar.succeeded()) {
-                for (Future<String> future: futureArray) {
-                    idsArray.add(future.result());
+                for (Future<Feedback> future: futureArray) {
+                    feedbacks.add(future.result());
                 }
-                newFeedback.setId(idsArray.get(0)); // kludge/fix/Macgyver
                 routingContext.response()
                         .setStatusCode(201)
                         .putHeader("content-type", contentType)
-                        .end(Json.encodePrettily(newFeedback));
+                        .end(Json.encodePrettily(feedbacks));
             } else {
                 routingContext.response().setStatusCode(404).end();
             }
