@@ -1,5 +1,6 @@
 examples/
 *.wav
+*.log
 
 ### Java ###
 *.class
