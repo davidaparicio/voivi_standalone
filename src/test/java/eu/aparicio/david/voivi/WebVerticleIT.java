@@ -6,10 +6,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
+
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.*;
+import static java.util.concurrent.TimeUnit.*;
 
 public class WebVerticleIT {
 
@@ -18,6 +21,13 @@ public class WebVerticleIT {
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = Integer.getInteger("http.port",8080);
         RestAssured.defaultParser = Parser.JSON;
+        //Wait the server start, and the NLP module too
+        //await().atMost(30, SECONDS).until(serverStarted());
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterClass
@@ -25,10 +35,8 @@ public class WebVerticleIT {
         RestAssured.reset();
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 5000)
     public void checkThatWeCanRetrieveIndividualProduct() {
-
-        // Get the list of feedbacks, ensure it's a success and extract the first id.
         final String _id = get("/api/feedbacks").then()
                 .assertThat()
                 .statusCode(200)
@@ -48,18 +56,19 @@ public class WebVerticleIT {
                 .body("[0]._id", equalTo(_id));
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 10000)
     public void checkWeCanAddAndDeleteAProduct() {
         // Create a new feedback and retrieve the result (as a Feedback instance).
-        Feedback newFeedbackTest = given()
+        Feedback[] newFeedbackArray = given()
                 .body("{\"sentence\":\"You dislike IT!\"," +
                         "\"sentiment\":\"10.\", " +
                         "\"subject\":\"You\", " +
                         "\"verb\":\"dislike\", " +
                         "\"object\":\"IT\", " +
                         "\"userId\":\"aaefaaef-aaef-aaef-aaef-aaefaaefaaef\"}"
-                ).request().post("/api/feedbacks").thenReturn().as(Feedback.class);
-        assertThat(newFeedbackTest.getSentence()).isEqualTo("You dislike IT!");
+                ).request().post("/api/feedbacks").thenReturn().as(Feedback[].class);
+        Feedback newFeedbackTest = newFeedbackArray[0];
+        assertThat(newFeedbackTest.getSentence()).isEqualTo("You dislike IT !");
         assertThat(newFeedbackTest.getSubject()).isEqualTo("You");
         assertThat(newFeedbackTest.getVerb()).isEqualTo("dislike");
         assertThat(newFeedbackTest.getObject()).isEqualTo("IT");
@@ -87,4 +96,12 @@ public class WebVerticleIT {
                 .assertThat()
                 .statusCode(404);
     }
+
+    /*private Callable<Boolean> serverStarted() {
+        return new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return WebVerticle.isServerStarted() == true; // The condition that must be fulfilled
+            }
+        };
+    }*/
 }

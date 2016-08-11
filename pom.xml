@@ -27,6 +27,7 @@
         <itatj.version>3.5.1</itatj.version>
         <ithlp.version>1.11</ithlp.version>
         <itest.version>2.19.1</itest.version>
+        <itawa.version>2.0.0</itawa.version>
         <itant.version>1.8</itant.version>
         <mongo.version>1.50.5</mongo.version>
         <javad.version>2.10.4</javad.version>
@@ -84,6 +85,12 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${itrst.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${itawa.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -231,6 +238,8 @@
                                     <arg value="-conf"/>
                                     <arg value="${project.build.directory}/test-classes/configIT.json"/>
                                     <arg value="-worker"/>
+                                    <!--arg valeu="-Dorg.slf4j.simpleLogger.logFile"/>
+                                    <arg valeu="target/TESTIT.log"/-->
                                 </exec>
                             </target>
                         </configuration>

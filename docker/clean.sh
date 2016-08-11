@@ -1,4 +1,5 @@
-docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
+ps -A | grep -Ei 'voivi' | awk '{print $1}' | xargs kill -SIGTERM
+#docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
 
 #docker volume ls | awk '{print $2}' | xargs docker volume rm
 #ps -A | grep -Ei "[v]oivi.*configIT" | awk '{print $1}' | xargs kill -SIGTERM
