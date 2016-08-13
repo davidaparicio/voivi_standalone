@@ -78,6 +78,7 @@ public class WebVerticle extends AbstractVerticle {
         router.route("/api/feedbacks*").handler(BodyHandler.create());
         router.post("/api/feedbacks").handler(this::addOne);
         router.get("/api/feedbacks/:id").handler(this::getOne);
+        router.get("/api/feedbacks/subject/:subject").handler(this::getAllBySubject);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route("/*").handler(StaticHandler.create("webroot"));
 
@@ -149,6 +150,32 @@ public class WebVerticle extends AbstractVerticle {
             });
         }
     }
+
+    private void getAllBySubject(RoutingContext routingContext) {
+        final String subject = routingContext.request().getParam("subject");
+        if (subject == null) {
+            routingContext.response().setStatusCode(400).end();
+        } else {
+            mongoClient.count(COLLECTION, new JsonObject().put("subject", subject), count -> {
+                if (count.succeeded()) {
+                    if (count.result() >= 1) {
+                        mongoClient.find(COLLECTION, new JsonObject().put("subject", subject), res -> {
+                            if (res.succeeded()) {
+                                routingContext.response().putHeader("content-type", contentType).end(Json.encodePrettily(res.result()));
+                            } else {
+                                routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBySubject",res);
+                            }
+                        });
+                    } else {
+                        routingContext.response().setStatusCode(404).end(); logger.warn("[getAllBySubject] - There is no feedback with this subject=" + subject);
+                    }
+                } else {
+                    routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBySubject",count);
+                }
+            });
+        }
+    }
+
 
     private void addSentence(String sentence, Future<Feedback> future, JsonObject json){
         JsonObject sentenceJson = json.put("sentence", sentence);

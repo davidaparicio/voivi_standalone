@@ -10,9 +10,7 @@ import java.util.concurrent.Callable;
 
 import static io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.*;
-import static java.util.concurrent.TimeUnit.*;
 
 public class WebVerticleIT {
 
