@@ -18,7 +18,7 @@ import static eu.aparicio.david.voivi.WebVerticle.websubject;
  */
 
 public class Feedback {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Feedback.class);
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(Feedback.class);
 
     /**
      * The id in the MongoDB
@@ -140,7 +140,7 @@ public class Feedback {
                 this.sentiment = sentiment;
             } catch(NullPointerException e) {
                 // It is perfectly acceptable to not handle "e" here
-                logger.trace("setSentiment/NullPointerException " + e);
+                LOG.trace("setSentiment/NullPointerException " + e);
                 this.setVariables();
             }
         }

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 public class SentimentAnalyzer {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(SentimentAnalyzer.class);
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(SentimentAnalyzer.class);
     private static StanfordCoreNLP pipeline;
 
     public static void init() {
@@ -33,7 +33,7 @@ public class SentimentAnalyzer {
                 Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
                 String partText = sentence.toString();
                 int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
-                logger.trace("Sentence #" + sentenceNo + ": (" + sentiment + ") " + partText);
+                LOG.trace("Sentence #" + sentenceNo + ": (" + sentiment + ") " + partText);
                 if (partText.length() > longest) {
                     mainSentiment = sentiment;
                     longest = partText.length();

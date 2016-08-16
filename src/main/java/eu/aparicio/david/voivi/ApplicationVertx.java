@@ -13,7 +13,7 @@ import java.io.FileReader;
 import java.util.Arrays;
 
 public class ApplicationVertx {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(ApplicationVertx.class);
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(ApplicationVertx.class);
     private ApplicationVertx() {
         throw new IllegalAccessError("Utility class");
     }
@@ -28,7 +28,7 @@ public class ApplicationVertx {
             JsonElement json = gson.fromJson(new FileReader("src/main/resources/config.json"), JsonElement.class);
             jsonString = gson.toJson(json);
         } catch (FileNotFoundException e) {
-            logger.warn("FileNotFoundException || "+e);
+            LOG.warn("FileNotFoundException || "+e);
         }
 
         VertxOptions vertxOptions = new VertxOptions();
@@ -36,22 +36,22 @@ public class ApplicationVertx {
         JsonObject jsonConfig = new JsonObject(jsonString);
         Vertx.clusteredVertx(vertxOptions, ar->{
             if (ar.succeeded()){
-                Vertx vertx = ar.result(); logger.trace("[ApplicationVertx] - Start the deployment ("+Thread.currentThread().getName()+")");
+                Vertx vertx = ar.result(); LOG.trace("[ApplicationVertx] - Start the deployment ("+Thread.currentThread().getName()+")");
                 vertx.deployVerticle(WebVerticle.class.getName(),
                         new DeploymentOptions().setConfig(jsonConfig)
                         .setInstances(1)
                         .setWorker(true)
                         , deployResult -> {
                             if (deployResult.succeeded()) {
-                                logger.trace("Deployment id is: " + deployResult.result());
+                                LOG.trace("Deployment id is: " + deployResult.result());
                             } else {
-                                logger.error("[ApplicationVertx] - deployVerticle fail ("+Thread.currentThread().getName()+")"); logger.error(Arrays.toString(deployResult.cause().getStackTrace()));
+                                LOG.error("[ApplicationVertx] - deployVerticle fail ("+Thread.currentThread().getName()+")"); LOG.error(Arrays.toString(deployResult.cause().getStackTrace()));
                             }
                         }
                 );
-                logger.trace("[ApplicationVertx] - Deployment successful ("+Thread.currentThread().getName()+")");
+                LOG.trace("[ApplicationVertx] - Deployment successful ("+Thread.currentThread().getName()+")");
             } else {
-                logger.error("[ApplicationVertx] - FAILURE DEPLOYMENT ("+Thread.currentThread().getName()+")");
+                LOG.error("[ApplicationVertx] - FAILURE DEPLOYMENT ("+Thread.currentThread().getName()+")");
             }
         });
 

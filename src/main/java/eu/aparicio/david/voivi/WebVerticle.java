@@ -12,6 +12,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.Reader;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WebVerticle extends AbstractVerticle {
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(WebVerticle.class);
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(WebVerticle.class);
     // mongoClient configuration
     private JsonObject mongoConfig;
     private MongoClient mongoClient;
@@ -79,6 +80,7 @@ public class WebVerticle extends AbstractVerticle {
         router.post("/api/feedbacks").handler(this::addOne);
         router.get("/api/feedbacks/:id").handler(this::getOne);
         router.get("/api/feedbacks/subject/:subject").handler(this::getAllBySubject);
+        router.get("/api/feedbacks/dates/:startDate/:finishDate").handler(this::getAllBetweenDates);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
         router.route("/*").handler(StaticHandler.create("webroot"));
 
@@ -97,14 +99,14 @@ public class WebVerticle extends AbstractVerticle {
             String ipWebservice;
             try {
                 ipWebservice = InetAddress.getLocalHost().getHostAddress();
-                logger.info("[SERVER] - Started http://"+ipWebservice+":"+config().getInteger("http.port", 8080));
+                LOG.info("[SERVER] - Started http://"+ipWebservice+":"+config().getInteger("http.port", 8080));
             } catch (UnknownHostException e) {
-                logger.trace("[completeStartup]"+e);
-                logger.info("[SERVER] - Started http://localhost:"+config().getInteger("http.port", 8080));
+                LOG.trace("[completeStartup]"+e);
+                LOG.info("[SERVER] - Started http://localhost:"+config().getInteger("http.port", 8080));
             }
         } else {
             fut.fail(http.cause());
-            logger.error("[SERVER] - Complete Startup failed");
+            LOG.error("[SERVER] - Complete Startup failed");
         }
     }
 
@@ -140,9 +142,9 @@ public class WebVerticle extends AbstractVerticle {
                             }
                         });
                     } else if (count.result() == 0){
-                        routingContext.response().setStatusCode(404).end(); logger.warn("[getOne] - There is no feedback with this _id="+id);
+                        routingContext.response().setStatusCode(204).end(); LOG.warn("[getOne] - There is no feedback with this _id="+id);
                     } else {
-                        routingContext.response().setStatusCode(404).end(); logger.warn("[getOne] - There is multiple feedbacks with this _id="+id);
+                        routingContext.response().setStatusCode(404).end(); LOG.warn("[getOne] - There is multiple feedbacks with this _id="+id);
                     }
                 } else {
                     routingContext.response().setStatusCode(404).end(); loggerWarning("getOne",count);
@@ -167,10 +169,47 @@ public class WebVerticle extends AbstractVerticle {
                             }
                         });
                     } else {
-                        routingContext.response().setStatusCode(404).end(); logger.warn("[getAllBySubject] - There is no feedback with this subject=" + subject);
+                        routingContext.response().setStatusCode(204).end(); LOG.warn("[getAllBySubject] - There is no feedback with this subject=" + subject);
                     }
                 } else {
                     routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBySubject",count);
+                }
+            });
+        }
+    }
+
+    private void getAllBetweenDates(RoutingContext routingContext) {
+        Integer date1 = null;
+        Integer date2 = null;
+        try {
+            date1 = Integer.valueOf(routingContext.request().getParam("startDate"));
+            date2 = Integer.valueOf(routingContext.request().getParam("finishDate"));
+        } catch (NumberFormatException e) {
+            LOG.trace("getAllBetweenDates/NumberFormatException " + e);
+        }
+        if (date1 == null || date2 == null){
+            routingContext.response().setStatusCode(400).end();
+        } else {
+            final Integer startDate = date1;
+            final Integer finishDate = date2;
+            JsonObject range = new JsonObject().put("$gt",startDate).put("$lt",finishDate);
+            JsonObject query = new JsonObject().put("timestamp", range);
+            LOG.info(query.toString());
+            mongoClient.count(COLLECTION, query, count -> {
+                if (count.succeeded()) {
+                    if (count.result() >= 1) {
+                        mongoClient.find(COLLECTION, query, res -> {
+                            if (res.succeeded()) {
+                                routingContext.response().putHeader("content-type", contentType).end(Json.encodePrettily(res.result()));
+                            } else {
+                                routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBetweenDates",res);
+                            }
+                        });
+                    } else {
+                        routingContext.response().setStatusCode(204).end(); LOG.warn("[getAllBetweenDates] - There is no feedback with this date range = ["+startDate+"/"+finishDate+"]");
+                    }
+                } else {
+                    routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBetweenDates",count);
                 }
             });
         }
@@ -246,7 +285,7 @@ public class WebVerticle extends AbstractVerticle {
     }
 
     private void loggerWarning(String functionName, AsyncResult res) {
-        logger.warn("["+functionName+"]" + res.cause().getMessage() + "\n" + Arrays.toString(res.cause().getStackTrace()));
+        LOG.warn("["+functionName+"]" + res.cause().getMessage() + "\n" + Arrays.toString(res.cause().getStackTrace()));
     }
 
     private void createExampleData(Handler<AsyncResult<Void>> next, Future<Void> fut) {
