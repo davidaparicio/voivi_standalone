@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 public class SubjectAnalyzer {
-    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(SubjectAnalyzer.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(SubjectAnalyzer.class);
     private static StanfordCoreNLP pipeline;
 
     public static void init() {
@@ -31,7 +31,7 @@ public class SubjectAnalyzer {
         // Loop over sentences in the document
         int sentenceNo = 0;
         for (CoreMap sentence : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
-            LOG.trace("Sentence #" + ++sentenceNo + ": " + sentence.get(CoreAnnotations.TextAnnotation.class));
+            logger.trace("Sentence #" + ++sentenceNo + ": " + sentence.get(CoreAnnotations.TextAnnotation.class));
             // Get the OpenIE triples for the sentence
             Collection<RelationTriple> triples = sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class);
             // Print the triples
@@ -40,7 +40,7 @@ public class SubjectAnalyzer {
                 subjectTriple.setFirst(triple.subjectLemmaGloss());
                 subjectTriple.setSecond(triple.relationLemmaGloss());
                 subjectTriple.setThird(triple.objectLemmaGloss());
-                LOG.trace("(" +
+                logger.trace("(" +
                         triple.subjectLemmaGloss() + "," +
                         triple.relationLemmaGloss() + "," +
                         triple.objectLemmaGloss() + ")");

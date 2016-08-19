@@ -33,7 +33,7 @@ public class WebVerticleTest {
     private Vertx vertx;
     private Integer port;
     private String testId = "testId";
-    private String maxTimestamp = "2147483647";
+    private static final String MAX_TIMESTAMP = "2147483647";
 
     @Before
     public void setUp(TestContext context) throws IOException {
@@ -282,7 +282,7 @@ public class WebVerticleTest {
     @Test
     public void checkGetAllBetweenDates(TestContext context) {
         Async async = context.async();
-        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/1000000000/"+maxTimestamp)
+        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/1000000000/"+MAX_TIMESTAMP)
                 .putHeader("content-type", "application/json")
                 .handler(response -> {
                     context.assertEquals(response.statusCode(), 200);
