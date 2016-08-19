@@ -1,11 +1,14 @@
 package eu.aparicio.david.voivi;
 
 import edu.stanford.nlp.util.Triple;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.ListIterator;
 
 import static eu.aparicio.david.voivi.WebVerticle.websentiment;
 import static eu.aparicio.david.voivi.WebVerticle.websubject;
@@ -103,8 +106,19 @@ public class Feedback {
         return json;
     }
 
+    public JsonArray toJsonArray(List<Feedback> list) {
+        JsonArray jsonArray = new JsonArray();
+        for (ListIterator<Feedback> it = list.listIterator(); it.hasNext(); )
+            jsonArray.add(it.next().toJson());
+        return jsonArray;
+    }
+
     public String encodePrettily(){
         return this.toJson().toString();
+    }
+
+    public String encodePrettily(List<Feedback> list){
+        return toJsonArray(list).toString();
     }
 
     public String getId() {

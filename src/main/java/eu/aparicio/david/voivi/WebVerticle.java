@@ -118,7 +118,7 @@ public class WebVerticle extends AbstractVerticle {
                 List<Feedback> feedbacks = objects.stream().map(Feedback::new).collect(Collectors.toList());
                 routingContext.response()
                         .putHeader("content-type", contentType)
-                        .end(Json.encodePrettily(feedbacks));
+                        .end(new Feedback().encodePrettily(feedbacks));
             } else {
                 loggerWarning("getAll",res);
                 routingContext.response().setStatusCode(404).end();

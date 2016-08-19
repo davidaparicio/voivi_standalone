@@ -80,7 +80,7 @@
         $("#content").children().remove();
         $.getJSON("/api/feedbacks", function (data) {
             $.each(data, function (key, val) {
-                $("<tr><td>" + val.id +
+                $("<tr><td>" + val._id +
                         "</td><td>" + val.timestamp +
                         "</td><td>" + val.userId +
                         "</td><td>" + val.sentence +
