@@ -63,6 +63,12 @@ public class Feedback {
         this.userId = userId;
     }
 
+    /** Constructor of a empty Feedback */
+    public Feedback() {
+        this._id = "";
+        this.timestamp = Instant.now().getEpochSecond();
+    }
+
     /**
      * Constructor Feedback
      * of a Feedback from the JSON representation
@@ -82,12 +88,23 @@ public class Feedback {
         this.userId = json.getString("userId");
     }
 
-    /**
-     * Constructor of a empty Feedback
-     */
-    public Feedback() {
-        this._id = "";
-        this.timestamp = Instant.now().getEpochSecond();
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject()
+                .put("timestamp", timestamp)
+                .put("sentence", sentence)
+                .put("sentiment", sentiment)
+                .put("subject", subject)
+                .put("verb", verb)
+                .put("object", object)
+                .put("userId", userId);
+        if (_id != null && !_id.isEmpty()) {
+            json.put("_id", _id);
+        }
+        return json;
+    }
+
+    public String encodePrettily(){
+        return this.toJson().toString();
     }
 
     public String getId() {

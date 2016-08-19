@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -89,7 +90,7 @@ public class WebVerticleTest {
     @Test
     public void checkThatWeCanAddSentenceComplete(TestContext context) {
         Async async = context.async();
-        final String json = Json.encodePrettily(new Feedback("I love test one sentence API!!", 20., "I", "love", "test one sentence API", "clefc1ef-clef-clef-clef-clefclefclef"));
+        final String json = new Feedback("I love test one sentence API!!", 20., "I", "love", "test one sentence API", "clefc1ef-clef-clef-clef-clefclefclef").encodePrettily();
         final String length = Integer.toString(json.length());
         vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
             .putHeader("content-type", "application/json")
@@ -135,7 +136,7 @@ public class WebVerticleTest {
     @Test
     public void checkThatWeCanAddSentenceOnly(TestContext context) {
         Async async = context.async();
-        final String json = Json.encodePrettily(new Feedback("I love empty!!", null, "", "", "", "clffc1ff-clff-clff-clff-clffclffclff"));
+        final String json = new Feedback("I love empty!!", null, "", "", "", "clffc1ff-clff-clff-clff-clffclffclff").encodePrettily();
         final String length = Integer.toString(json.length());
         vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
             .putHeader("content-type", "application/json")
@@ -172,7 +173,10 @@ public class WebVerticleTest {
     @Test
     public void checkThatWeCanAddSentences(TestContext context) {
         Async async = context.async();
-        final String json = Json.encodePrettily(new Feedback("This movie doesn't care about cleverness, with or any other kind of intelligent humor. Those who find ugly meanings in beautiful things are corrupt without being charming. There are slow and repetitive parts, but it has just enough spice to keep it interesting.", null, "", "", "", "aaffaaff-aaff-aaff-aaff-aaffaaffaaff"));
+        final String json = new Feedback("This movie doesn't care about cleverness, with or any other kind of intelligent humor. " +
+                "Those who find ugly meanings in beautiful things are corrupt without being charming. " +
+                "There are slow and repetitive parts, but it has just enough spice to keep it interesting. ",
+                null, "", "", "", "aaffaaff-aaff-aaff-aaff-aaffaaffaaff").encodePrettily();
         final String length = Integer.toString(json.length());
         vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
             .putHeader("content-type", "application/json")
@@ -225,4 +229,54 @@ public class WebVerticleTest {
             .write(json)
             .end();
     }
+
+    /*@Test
+    public void checkGetAllBySubject(TestContext context) {
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/subject/This%20restaurant")
+            .putHeader("content-type", "application/json")
+            .handler(response -> {
+                context.assertEquals(response.statusCode(), 200);
+                context.assertTrue(response.headers().get("content-type").contains("application/json"));
+                response.bodyHandler(body -> {
+                    String responseJson = body.toString();
+                    //System.out.println(responseJson);
+                    //Get the first feedback of the array
+                    JsonArray responseArray = new JsonArray(responseJson);
+                    if (responseArray.isEmpty() || responseArray.size() != 1) {
+                        context.fail("responseArray.size() != 1");
+                        async.complete();
+                    } else {
+                        //System.out.println(responseArray.getJsonObject(0).toString());
+                        JsonObject json = responseArray.getJsonObject(0);
+                        System.out.println(json.getDouble("sentiment"));
+                        JsonObject json2 = new JsonObject().put("id",json.getString("_id"))
+                                .put("sentence",json.getString("sentence"))
+                                .put("sentiment",json.getDouble("sentiment"))
+                                .put("subject",json.getString("subject"))
+                                .put("verb",json.getString("verb"))
+                                .put("object",json.getString("object"))
+                                .put("userId",json.getString("userId"))
+                                .put("timestamp",json.getInteger("timestamp"));
+                        System.out.println(json2.toString());
+                        System.out.println("5");
+                        try {
+                            final Feedback responseFeedback = Json.decodeValue(json2.toString(), Feedback.class);
+                            //System.out.println(responseFeedback.toString());
+                            context.assertEquals(responseFeedback.getSentence(), "This restaurant was my best experience in my life !!");
+                        } catch (DecodeException e) {
+                            System.out.println(e.toString());
+                            context.fail("DecodeException");
+                        }
+                        //final Feedback responseFeedback = Json.decodeValue(json.toString(), Feedback.class);
+                        //System.out.println(responseFeedback.toString());
+                        //System.out.println("7");
+                        //context.assertNotNull(responseFeedback.getId());
+                        //System.out.println("8");
+                        async.complete();
+                    }
+                });
+            })
+            .end();
+    }*/
 }

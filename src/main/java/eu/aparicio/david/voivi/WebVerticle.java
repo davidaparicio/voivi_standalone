@@ -220,7 +220,7 @@ public class WebVerticle extends AbstractVerticle {
         JsonObject sentenceJson = json.put("sentence", sentence);
         Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
 
-        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(newFeedback)), res ->
+        mongoClient.insert(COLLECTION, newFeedback.toJson(), res ->
         {
             if (res.failed()) {
                 loggerWarning("addOne", res);
@@ -292,12 +292,12 @@ public class WebVerticle extends AbstractVerticle {
         Feedback mine = new Feedback("This restaurant was my best experience in my life !!", 18., "This restaurant", "be", "best experience", "3592c1ef-0df2-4e59-8302-d5c310743fce");
         Feedback omar = new Feedback("I found a hair on my plate. Yuck!!", 7.25, "I", "find", "hair", "df86f144-314c-4c13-842c-9208fcdb1972");
         // no feedbacks, insert data
-        mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(mine)), insert1 -> {
+        mongoClient.insert(COLLECTION, mine.toJson(), insert1 -> {
             if (insert1.failed()) {
                 loggerWarning("createSomeData", insert1);
                 fut.fail(insert1.cause());
             } else {
-                mongoClient.insert(COLLECTION, new JsonObject(Json.encodePrettily(omar)), insert2 -> {
+                mongoClient.insert(COLLECTION, omar.toJson(), insert2 -> {
                     if (insert2.failed()) {
                         loggerWarning("createSomeData", insert2);
                         fut.failed();
