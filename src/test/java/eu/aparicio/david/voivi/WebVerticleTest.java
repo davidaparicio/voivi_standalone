@@ -33,6 +33,7 @@ public class WebVerticleTest {
     private Vertx vertx;
     private Integer port;
     private String testId = "testId";
+    private String maxTimestamp = "2147483647";
 
     @Before
     public void setUp(TestContext context) throws IOException {
@@ -230,7 +231,7 @@ public class WebVerticleTest {
             .end();
     }
 
-    /*@Test
+    @Test
     public void checkGetAllBySubject(TestContext context) {
         Async async = context.async();
         vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/subject/This%20restaurant")
@@ -240,43 +241,80 @@ public class WebVerticleTest {
                 context.assertTrue(response.headers().get("content-type").contains("application/json"));
                 response.bodyHandler(body -> {
                     String responseJson = body.toString();
-                    //System.out.println(responseJson);
                     //Get the first feedback of the array
                     JsonArray responseArray = new JsonArray(responseJson);
                     if (responseArray.isEmpty() || responseArray.size() != 1) {
                         context.fail("responseArray.size() != 1");
                         async.complete();
                     } else {
-                        //System.out.println(responseArray.getJsonObject(0).toString());
-                        JsonObject json = responseArray.getJsonObject(0);
-                        System.out.println(json.getDouble("sentiment"));
-                        JsonObject json2 = new JsonObject().put("id",json.getString("_id"))
-                                .put("sentence",json.getString("sentence"))
-                                .put("sentiment",json.getDouble("sentiment"))
-                                .put("subject",json.getString("subject"))
-                                .put("verb",json.getString("verb"))
-                                .put("object",json.getString("object"))
-                                .put("userId",json.getString("userId"))
-                                .put("timestamp",json.getInteger("timestamp"));
-                        System.out.println(json2.toString());
-                        System.out.println("5");
-                        try {
-                            final Feedback responseFeedback = Json.decodeValue(json2.toString(), Feedback.class);
-                            //System.out.println(responseFeedback.toString());
-                            context.assertEquals(responseFeedback.getSentence(), "This restaurant was my best experience in my life !!");
-                        } catch (DecodeException e) {
-                            System.out.println(e.toString());
-                            context.fail("DecodeException");
-                        }
-                        //final Feedback responseFeedback = Json.decodeValue(json.toString(), Feedback.class);
-                        //System.out.println(responseFeedback.toString());
-                        //System.out.println("7");
-                        //context.assertNotNull(responseFeedback.getId());
-                        //System.out.println("8");
+                        /* io.vertx.core.json.DecodeException: Failed to decode:Unrecognized field "_id"
+                        (class eu.aparicio.david.voivi.Feedback), not marked as ignorable
+                        (8 known properties: "sentence", "userId", "id", "subject", "sentiment", "timestamp", "verb", "object"])
+                        line: 1, column: 9] (through reference chain: eu.aparicio.david.voivi.Feedback["_id"]
+                        final Feedback responseFeedback = Json.decodeValue(json.toString(), Feedback.class);
+                        */
+                        final Feedback responseFeedback = new Feedback(responseArray.getJsonObject(0));
+                        context.assertEquals(responseFeedback.getSentence(), "This restaurant was my best experience in my life !!");
+                        context.assertEquals(responseFeedback.getSentiment(), 18.);
+                        context.assertEquals(responseFeedback.getSubject(), "This restaurant");
+                        context.assertEquals(responseFeedback.getVerb(), "be");
+                        context.assertEquals(responseFeedback.getObject(), "best experience");
+                        context.assertEquals(responseFeedback.getUserId(), "3592c1ef-0df2-4e59-8302-d5c310743fce");
+                        context.assertNotNull(responseFeedback.getId());
                         async.complete();
                     }
                 });
             })
             .end();
-    }*/
+    }
+
+    @Test
+    public void checkGetAllBetweenDatesEmpty(TestContext context) {
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/0/1")
+                .putHeader("content-type", "application/json")
+                .handler(response -> {
+                    context.assertEquals(response.statusCode(), 204); //No Content
+                            async.complete();
+                }).end();
+    }
+
+    @Test
+    public void checkGetAllBetweenDates(TestContext context) {
+        Async async = context.async();
+        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/1000000000/"+maxTimestamp)
+                .putHeader("content-type", "application/json")
+                .handler(response -> {
+                    context.assertEquals(response.statusCode(), 200);
+                    context.assertTrue(response.headers().get("content-type").contains("application/json"));
+                    response.bodyHandler(body -> {
+                        String responseJson = body.toString();
+                        //Get the first feedback of the array
+                        JsonArray responseArray = new JsonArray(responseJson);
+                        if (responseArray.isEmpty() || responseArray.size() != 2) {
+                            context.fail("responseArray.size() != 2");
+                            async.complete();
+                        } else {
+                            Feedback responseFeedback = new Feedback(responseArray.getJsonObject(0));
+                            context.assertEquals(responseFeedback.getSentence(), "This restaurant was my best experience in my life !!");
+                            context.assertEquals(responseFeedback.getSentiment(), 18.);
+                            context.assertEquals(responseFeedback.getSubject(), "This restaurant");
+                            context.assertEquals(responseFeedback.getVerb(), "be");
+                            context.assertEquals(responseFeedback.getObject(), "best experience");
+                            context.assertEquals(responseFeedback.getUserId(), "3592c1ef-0df2-4e59-8302-d5c310743fce");
+                            context.assertNotNull(responseFeedback.getId());
+                            responseFeedback = new Feedback(responseArray.getJsonObject(1));
+                            context.assertEquals(responseFeedback.getSentence(), "I found a hair on my plate. Yuck!!");
+                            context.assertEquals(responseFeedback.getSentiment(), 7.25);
+                            context.assertEquals(responseFeedback.getSubject(), "I");
+                            context.assertEquals(responseFeedback.getVerb(), "find");
+                            context.assertEquals(responseFeedback.getObject(), "hair");
+                            context.assertEquals(responseFeedback.getUserId(), "df86f144-314c-4c13-842c-9208fcdb1972");
+                            context.assertNotNull(responseFeedback.getId());
+                            async.complete();
+                        }
+                    });
+                })
+                .end();
+    }
 }
