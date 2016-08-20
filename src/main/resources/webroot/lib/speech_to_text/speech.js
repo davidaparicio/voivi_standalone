@@ -147,19 +147,33 @@ function sendAPI() {
     n = 40 + final_transcript.substring(40).indexOf(' ');
   }
   var textURI = encodeURI(final_transcript);
-  var JSONtext = {"message":final_transcript,"activity":final_activity,"from":"js"}
+  //var JSONtext = {"message":final_transcript,"activity":final_activity,"from":"js"}
+  var JSONtext = JSON.stringify({sentence : final_transcript,sentiment:"",subject:"",verb:"",object:"",userId : myUserId});
 
   //eb.publish('events', {"message":final_transcript,"from":"js"});
-  $.post("/api/feedbacks", JSON.stringify(
-  {
-      sentence : final_transcript,
-      sentiment:"",
-      subject:"",
-      verb:"",
-      object:"",
-      userId : myUserId
-  }), function () {
-      load();
+  $.post("/api/feedbacks", JSONtext, function(data) {
+    console.log("[TRYING] - Send the message");
+    console.log(JSONtext);
+    })
+    .done(function(data) {
+      console.log("[SUCCESS] - Message sent");
+      console.log(data);
+      for(var i=0;i<data.length;i++){
+        if(data[i].subject==="") { } else {
+          $('#log').prepend('<span>' + '(' + data[i].subject + ' ,' + data[i].verb + ', ' + data[i].object + ')'+'</span>');
+        }
+        $('#log').prepend('<span>' + data[i].sentence + ' [' + data[i].sentiment + ' on a scale of 0→4]' + '</span><br>');
+        $('#log').prepend('<h3 class="mdl-card__title-text mdl-color-text--'+sentimentColor[data[i].sentiment]+'">' + 'Your sentiment is ' + sentimentText[data[i].sentiment] + '</h3>');
+
+      }
+    })
+    .fail(function(data) {
+      console.error('[ERROR] - to send the message:' + data);
+      error_showSnackbar();
+    })
+    .always(function(data) {
+      console.log("Request finished");
+      final_transcript = ''; //for the automatic recognition
   }, "json");
   /*eb.send('events', JSONtext, function(err, reply) {
         if (err) {
