@@ -6,7 +6,7 @@
 
     <groupId>eu.aparicio.david</groupId>
     <artifactId>voivi</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <properties>
         <!-- JAVA VERSION USED = JAVA 8 -->

@@ -237,7 +237,6 @@ public class WebVerticle extends AbstractVerticle {
         ArrayList<Future> futureArray = new ArrayList();
 
         JsonObject json = routingContext.getBodyAsJson();
-        logger.error(json.toString());
         List<Feedback> feedbacks = new ArrayList<>();
         String paragraph = json.getString("sentence");
 
