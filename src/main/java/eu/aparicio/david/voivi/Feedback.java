@@ -56,6 +56,7 @@ public class Feedback {
      * @see Feedback#_id
      */
     public Feedback(String sentence, Double sentiment, String subject, String verb, String object, String userId) {
+        logger.trace("Standard constructor");
         this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
         this.sentence = sentence;
@@ -68,6 +69,7 @@ public class Feedback {
 
     /** Constructor of a empty Feedback */
     public Feedback() {
+        logger.trace("Empty constructor");
         this._id = "";
         this.timestamp = Instant.now().getEpochSecond();
     }
@@ -81,6 +83,7 @@ public class Feedback {
      * @see Feedback#Feedback(String, Double, String, String, String, String)
      */
     public Feedback(JsonObject json) {
+        logger.trace("JSON constructor");
         this._id = json.getString("_id");
         this.timestamp = json.getLong("timestamp");
         this.sentence = json.getString("sentence");
@@ -92,6 +95,7 @@ public class Feedback {
     }
 
     public JsonObject toJson() {
+        logger.trace(getMethodName());
         JsonObject json = new JsonObject()
                 .put("timestamp", timestamp)
                 .put("sentence", sentence)
@@ -106,7 +110,8 @@ public class Feedback {
         return json;
     }
 
-    public JsonArray toJsonArray(List<Feedback> list) {
+    public static JsonArray toJsonArray(List<Feedback> list) {
+        logger.trace(getMethodName());
         JsonArray jsonArray = new JsonArray();
         for (ListIterator<Feedback> it = list.listIterator(); it.hasNext(); )
             jsonArray.add(it.next().toJson());
@@ -153,9 +158,13 @@ public class Feedback {
         return timestamp;
     }
 
-    public void setId(String _id) { this._id = _id; }
+    public void setId(String _id) {
+        logger.trace(getMethodName());
+        this._id = _id;
+    }
 
     public void setSentence(String sentence) {
+        logger.trace(getMethodName());
         if (StringUtils.isNotBlank(sentence)) {
             this.sentence = sentence;
         } else {
@@ -164,6 +173,7 @@ public class Feedback {
     }
 
     public void setSentiment(Double sentiment) {
+        logger.trace(getMethodName());
         if(!alreadyComputed){
             this.sentiment = 0.; //default
             try {
@@ -178,6 +188,7 @@ public class Feedback {
     }
 
     public void setSubject(String subject) {
+        logger.trace(getMethodName());
         if(!alreadyComputed){
             if (StringUtils.isNotBlank(subject)) {
                 this.subject = subject;
@@ -189,6 +200,7 @@ public class Feedback {
     }
 
     public void setVerb(String verb) {
+        logger.trace(getMethodName());
         if(!alreadyComputed) {
             if (StringUtils.isNotBlank(verb)) {
                 this.verb = verb;
@@ -199,6 +211,7 @@ public class Feedback {
     }
 
     public void setObject(String object) {
+        logger.trace(getMethodName());
         if(!alreadyComputed){
             if (StringUtils.isNotBlank(object)) {
                 this.object = object;
@@ -209,14 +222,17 @@ public class Feedback {
     }
 
     public void setUserId(String userId) {
+        logger.trace(getMethodName());
         this.userId = userId;
     }
 
     public void setTimestamp(Long timestamp) {
+        logger.trace(getMethodName());
         this.timestamp = timestamp;
     }
 
     private void setVariables(){
+        logger.trace(getMethodName());
         this.sentiment = websentiment.findSentiment(this.sentence);
         Triple triple = websubject.findSubject(this.sentence);
         this.subject = (String) triple.first;
@@ -237,5 +253,10 @@ public class Feedback {
                 ", userId='" + userId + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+    public static String getMethodName() {
+        //Go Thread.currentThread().getStackTrace()[1].getMethodName()
+        return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
 }

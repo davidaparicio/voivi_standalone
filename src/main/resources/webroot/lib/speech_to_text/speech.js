@@ -26,7 +26,8 @@ var start_timestamp;
 var sentimentText  = ["Very Negative","Negative", "Neutral", "Positive", "Very Positive"];
 var sentimentColor = ["red-600", "orange-800", "blue-grey-500", "teal-400", "green-600"];
 
-var eb = new EventBus('/eventbus/');
+//var eb = new EventBus('/eventbus/');
+
 /*eb.onopen = function () {
   //eb.publish('events', {"message":"hello","from":"js"});
   eb.registerHandler('events', function (err, msg) {
@@ -149,7 +150,18 @@ function sendAPI() {
   var JSONtext = {"message":final_transcript,"activity":final_activity,"from":"js"}
 
   //eb.publish('events', {"message":final_transcript,"from":"js"});
-  eb.send('events', JSONtext, function(err, reply) {
+  $.post("/api/feedbacks", JSON.stringify(
+  {
+      sentence : final_transcript,
+      sentiment:"",
+      subject:"",
+      verb:"",
+      object:"",
+      userId : myUserId
+  }), function () {
+      load();
+  }, "json");
+  /*eb.send('events', JSONtext, function(err, reply) {
         if (err) {
           console.error('[ERROR] - to send the message:' + err);
           error_showSnackbar();
@@ -179,7 +191,7 @@ function sendAPI() {
           error_showSnackbar();
         }
       }
-    );
+    );*/
 }
 
 function copyButton() {

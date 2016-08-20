@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.aparicio.david.voivi.Feedback.toJsonArray;
+
 public class WebVerticle extends AbstractVerticle {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(WebVerticle.class);
     // mongoClient configuration
@@ -235,6 +237,7 @@ public class WebVerticle extends AbstractVerticle {
         ArrayList<Future> futureArray = new ArrayList();
 
         JsonObject json = routingContext.getBodyAsJson();
+        logger.error(json.toString());
         List<Feedback> feedbacks = new ArrayList<>();
         String paragraph = json.getString("sentence");
 
@@ -261,6 +264,7 @@ public class WebVerticle extends AbstractVerticle {
                         .setStatusCode(201)
                         .putHeader("content-type", contentType)
                         .end(Json.encodePrettily(feedbacks));
+                        //.end(toJsonArray(feedbacks).toString());
             } else {
                 routingContext.response().setStatusCode(404).end();
             }

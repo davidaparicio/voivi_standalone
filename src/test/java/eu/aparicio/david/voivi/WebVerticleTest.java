@@ -82,7 +82,7 @@ public class WebVerticleTest {
             context.assertEquals(response.statusCode(), 200);
             //context.assertEquals(response.headers().get("content-type"), "text/html;charset=UTF-8");
             response.bodyHandler(body -> {
-                context.assertTrue(body.toString().contains("<title>Feedback Dashboard</title>"));
+                context.assertTrue(body.toString().contains("<title>Voivi - Speech Recognition</title>"));
                 async.complete();
             });
         });
