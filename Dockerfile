@@ -6,7 +6,7 @@ ENV HOME /home/$USERNAME
 ENV SHELL /bin/sh
 #/bin/ash
 
-ENV JAR voivi-0.0.1-SNAPSHOT-fat.jar
+ENV JAR voivi-0.0.2-SNAPSHOT-fat.jar
 
 # Don't be root.
 RUN adduser -h ${HOME} -D -s ${SHELL} -S ${USERNAME}
@@ -22,4 +22,3 @@ COPY ./target/${JAR} .
 
 ENTRYPOINT ["sh", "-c"]
 CMD ["java -jar ${JAR} -conf config.json"]
-
