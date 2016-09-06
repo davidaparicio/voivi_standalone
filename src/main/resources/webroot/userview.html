@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voivi - Speech Recognition</title>
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="/img/android-desktop.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+  <link rel="apple-touch-icon-precomposed" href="/img/ios-desktop.png">
+
+  <!-- Tile icon for Win8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+  <meta name="msapplication-TileColor" content="#3372DF">
+
+  <link rel="shortcut icon" href="/img/favicon.png">
+
+  <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+  <!--
+  <link rel="canonical" href="http://www.example.com/">
+  -->
+
+  <!-- npm install -g google-fonts-offline; goofoffline outDir=lib/fonts/ outCss=mdl-font.css "http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" -->
+  <link rel="stylesheet" href="/lib/fonts/mdl-font.css">
+  <link rel="stylesheet" href="/css/mdl-icons.css">
+  <link rel="stylesheet" href="/css/mdl-tealpink.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/mdl-template.css">
+  <link rel="stylesheet" href="/css/mdl-select.min.css">
+</head>
+<body class="mdl-demo mdl-color--grey-300 mdl-color-text--grey-700 mdl-base">
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
+    <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+    </div>
+    <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+      <img class="android-logo-image" src="img/ios-desktop.png">
+      <h3>Voivi - Speech Recognition</h3>
+    </div>
+    <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+    </div>
+    <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
+      <a href="#overview" class="mdl-layout__tab is-active">Home</a>
+      <a href="#privacy" class="mdl-layout__tab">Privacy and Terms</a>
+      <a href="#privacy" class="mdl-layout__tab">User Agreement</a>
+      <a href="#features" class="mdl-layout__tab">FAQ</a>
+    </div>
+  </header>
+  <main class="mdl-layout__content">
+    <div class="mdl-layout__tab-panel is-active" id="overview">
+
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+
+        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn1">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn1">
+          <li class="mdl-menu__item">Restauration</li>
+          <li class="mdl-menu__item">Theme Park</li>
+          <li class="mdl-menu__item">Travelling</li>
+          <li class="mdl-menu__item">Leisure</li>
+          <li class="mdl-menu__item">Accommodation</li>
+        </ul>
+
+        <div class="mdl-card mdl-cell mdl-cell--12-col">
+          <div class="mdl-card__supporting-text">
+            <h4>Web Speech API Demonstration</h4>
+
+            <h6>Current activity</h6>
+            <span id="activity_span" class="final"></span>
+
+            <!--div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">
+              <input class="mdl-textfield__input" value="Restauration" type="text" id="activity" readonly tabIndex="-1" />
+              <label class="mdl-textfield__label" for="activity">Current activity</label>
+              <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="activity">
+                <li class="mdl-menu__item">Restauration</li>
+                <li class="mdl-menu__item">Theme Park</li>
+                <li class="mdl-menu__item">Travelling</li>
+                <li class="mdl-menu__item">Leisure</li>
+                <li class="mdl-menu__item">Accommodation</li>
+              </ul>
+            </div-->
+
+            <div id="info">
+              <p id="info_start">Click on the microphone icon and begin speaking.</p>
+              <p id="info_speak_now">Speak now.</p>
+              <p id="info_no_speech">No speech was detected. You may need to adjust your
+                <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+                  microphone settings</a>.</p>
+              <p id="info_no_microphone" style="display:none">
+                No microphone was found. Ensure that a microphone is installed and that
+                <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+                  microphone settings</a> are configured correctly.</p>
+              <p id="info_allow">Click the "Allow" button above to enable your microphone.</p>
+              <p id="info_denied">Permission to use microphone was denied.</p>
+              <p id="info_blocked">Permission to use microphone is blocked. To change,
+                go to chrome://settings/contentExceptions#media-stream</p>
+              <p id="info_upgrade">Web Speech API is not supported by this browser.
+                Upgrade to <a href="//www.google.com/chrome">Chrome</a>
+                version 25 or later.</p>
+            </div>
+            <div class="right">
+              <button id="start_button" onclick="startButton(event)">
+                <img id="start_img" src="img/mic.gif" alt="Start"></button>
+            </div>
+            <div id="results">
+              <span id="final_span" class="final"></span>
+              <span id="interim_span" class="interim"></span>
+              <p>
+            </div>
+            <div class="center">
+              <div class="sidebyside" style="text-align:right">
+                <button id="copy_button" class="button" onclick="copyButton()">
+                  Stop</button>
+                <div id="copy_info" class="info">
+                  Recognition stopped
+                </div>
+              </div>
+              <div class="sidebyside">
+                <button id="api_button" class="button" onclick="apiButton()">
+                  Send to API</button>
+                <div id="api_info" class="info">
+                  Text sent to the server.<br>
+                  (Devs: see browser console)
+                </div>
+              </div>
+              <p>
+              <div id="div_language">
+                <select id="select_language" onchange="updateCountry()"></select>
+                &nbsp;&nbsp;
+                <select id="select_dialect"></select>
+              </div>
+            </div>
+
+          </div>
+          <div class="mdl-card__actions">
+            <a href="#" class="mdl-button">Read our features</a>
+          </div>
+        </div>
+        <!--button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn3">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn3">
+          <li class="mdl-menu__item">Lorem</li>
+          <li class="mdl-menu__item" disabled>Ipsum</li>
+          <li class="mdl-menu__item">Dolor</li>
+        </ul-->
+      </section>
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+        <div class="mdl-card mdl-cell mdl-cell--12-col">
+          <div class="mdl-card__supporting-text">
+            <h4>Results</h4>
+            <div id="log"></div>
+            <div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar">
+              <div class="mdl-snackbar__text"></div>
+              <button class="mdl-snackbar__action" type="button"></button>
+            </div>
+          </div>
+          <div class="mdl-card__actions">
+            <a href="#" class="mdl-button">Read our features</a>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="mdl-layout__tab-panel" id="features">
+      <section class="section--center mdl-grid mdl-grid--no-spacing">
+        <div class="mdl-cell mdl-cell--12-col">
+          <!-- TODO -->
+          <h5>TODO</h5>
+          <ul class="toc">
+            <a>Pause/Start</a>
+            <a>Stop/Reset</a>
+            <a>Send to API</a>
+            <a>Checkbox for continous synchronisation</a>
+            <a>Add support for other languages</a>
+          </ul>
+
+          <h4>Features</h4>
+          Minim duis incididunt est cillum est ex occaecat consectetur. Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
+          <ul class="toc">
+            <h4>Contents</h4>
+            <a href="#lorem1">Lorem ipsum</a>
+            <a href="#lorem2">Lorem ipsum</a>
+            <a href="#lorem3">Lorem ipsum</a>
+            <a href="#lorem4">Lorem ipsum</a>
+            <a href="#lorem5">Lorem ipsum</a>
+          </ul>
+
+          <h5 id="lorem1">Lorem ipsum dolor sit amet</h5>
+          Excepteur et pariatur officia veniam anim culpa cupidatat consequat ad velit culpa est non.
+          <ul>
+            <li>Nisi qui nisi duis commodo duis reprehenderit consequat velit aliquip.</li>
+            <li>Dolor consectetur incididunt in ipsum laborum non et irure pariatur excepteur anim occaecat officia sint.</li>
+            <li>Lorem labore proident officia excepteur do.</li>
+          </ul>
+
+          <p>
+            Sit qui est voluptate proident minim cillum in aliquip cupidatat labore pariatur id tempor id. Proident occaecat occaecat sint mollit tempor duis dolor cillum anim. Dolore sunt ea mollit fugiat in aliqua consequat nostrud aliqua ut irure in dolore. Proident aliqua culpa sint sint exercitation. Non proident occaecat reprehenderit veniam et proident dolor id culpa ea tempor do dolor. Nulla adipisicing qui fugiat id dolor. Nostrud magna voluptate irure veniam veniam labore ipsum deserunt adipisicing laboris amet eu irure. Sunt dolore nisi velit sit id. Nostrud voluptate labore proident cupidatat enim amet Lorem officia magna excepteur occaecat eu qui. Exercitation culpa deserunt non et tempor et non.
+          </p>
+          <p>
+            Do dolor eiusmod eu mollit dolore nostrud deserunt cillum irure esse sint irure fugiat exercitation. Magna sit voluptate id in tempor elit veniam enim cupidatat ea labore elit. Aliqua pariatur eu nulla labore magna dolore mollit occaecat sint commodo culpa. Eu non minim duis pariatur Lorem quis exercitation. Sunt qui ex incididunt sit anim incididunt sit elit ad officia id.
+          </p>
+          <p id="lorem2">
+            Tempor voluptate ex consequat fugiat aliqua. Do sit et reprehenderit culpa deserunt culpa. Excepteur quis minim mollit irure nulla excepteur enim quis in laborum. Aliqua elit voluptate ad deserunt nulla reprehenderit adipisicing sint. Est in eiusmod exercitation esse commodo. Ea reprehenderit exercitation veniam adipisicing minim nostrud. Veniam dolore ex ea occaecat non enim minim id ut aliqua adipisicing ad. Occaecat excepteur aliqua tempor cupidatat aute dolore deserunt ipsum qui incididunt aliqua occaecat sit quis. Culpa sint aliqua aliqua reprehenderit veniam irure fugiat ea ad.
+          </p>
+          <p>
+            Eu minim fugiat laborum irure veniam Lorem aliqua enim. Aliqua veniam incididunt consequat irure consequat tempor do nisi deserunt. Elit dolore ad quis consectetur sint laborum anim magna do nostrud amet. Ea nulla sit consequat quis qui irure dolor. Sint deserunt excepteur consectetur magna irure. Dolor tempor exercitation dolore pariatur incididunt ut laboris fugiat ipsum sunt veniam aute sunt labore. Non dolore sit nostrud eu ad excepteur cillum eu ex Lorem duis.
+          </p>
+          <p>
+            Id occaecat velit non ipsum occaecat aliqua quis ut. Eiusmod est magna non esse est ex incididunt aute ullamco. Cillum excepteur sint ipsum qui quis velit incididunt amet. Qui deserunt anim enim laborum cillum reprehenderit duis mollit amet ad officia enim. Minim sint et quis aliqua aliqua do minim officia dolor deserunt ipsum laboris. Nulla nisi voluptate consectetur est voluptate et amet. Occaecat ut quis adipisicing ad enim. Magna est magna sit duis proident veniam reprehenderit fugiat reprehenderit enim velit ex. Ullamco laboris culpa irure aliquip ad Lorem consequat veniam ad ipsum eu. Ipsum culpa dolore sunt officia laborum quis.
+          </p>
+
+          <h5 id="lorem3">Lorem ipsum dolor sit amet</h5>
+
+          <p id="lorem4">
+            Eiusmod nulla aliquip ipsum reprehenderit nostrud non excepteur mollit amet esse est est dolor. Dolore quis pariatur sit consectetur veniam esse ullamco duis Lorem qui enim ut veniam. Officia deserunt minim duis laborum dolor in velit pariatur commodo ullamco eu. Aute adipisicing ad duis labore laboris do mollit dolor cillum sunt aliqua ullamco. Esse tempor quis cillum consequat reprehenderit. Adipisicing proident anim eu sint elit aliqua anim dolore cupidatat fugiat aliquip qui.
+          </p>
+          <p id="lorem5">
+            Nisi eiusmod esse cupidatat excepteur exercitation ipsum reprehenderit nostrud deserunt aliqua ullamco. Anim est irure commodo eiusmod pariatur officia. Est dolor ipsum excepteur magna aliqua ad veniam irure qui occaecat eiusmod aute fugiat commodo. Quis mollit incididunt amet sit minim velit eu fugiat voluptate excepteur. Sit minim id pariatur ex cupidatat cupidatat nostrud nostrud ipsum.
+          </p>
+          <p>
+            Enim ea officia excepteur ad veniam id reprehenderit eiusmod esse mollit consequat. Esse non aute ullamco Lorem aliqua qui dolore irure eiusmod aute aliqua proident labore aliqua. Ipsum voluptate voluptate exercitation laborum deserunt nulla elit aliquip et minim ex veniam. Duis cupidatat aute sunt officia mollit dolor ad elit ad aute labore nostrud duis pariatur. In est sint voluptate consectetur velit ea non labore. Ut duis ea aliqua consequat nulla laboris fugiat aute id culpa proident. Minim eiusmod laboris enim Lorem nisi excepteur mollit voluptate enim labore reprehenderit officia mollit.
+          </p>
+          <p>
+            Cupidatat labore nisi ut sunt voluptate quis sunt qui ad Lorem esse nisi. Ex esse velit ullamco incididunt occaecat dolore veniam tempor minim adipisicing amet. Consequat in exercitation est elit anim consequat cillum sint labore cillum. Aliquip mollit laboris ad labore anim.
+          </p>
+        </div>
+      </section>
+    </div>
+    <div class="mdl-layout__tab-panel" id="privacy">
+      <section class="section--center mdl-grid mdl-grid--no-spacing">
+        <div class="mdl-cell mdl-cell--12-col">
+<div id="pp-header">
+<h1>Welcome to the Jiminy Privacy Policy</h1>
+<p>When you use Jiminy services, you trust us with your information. This Privacy Policy is meant to help you understand what data we collect, why we collect it, and what we do with it. This is important; we hope you will take time to read it carefully. And remember, you can find controls to manage your information and protect your privacy and security at <a href="https://myaccount.google.com/?hl=en">My Account</a>.</p></div>
+<div id="pp-wrapper">
+<h1>Privacy Policy</h1>
+<div id="pp-meta">
+<div class="intro">
+<p>Last modified: August 19, 2015 (<a href="../../policies/privacy/archive/">view archived versions</a>) <span id="print-examples-notice">(The hyperlinked examples are available at the end of this document.)</span></p></div>
+<p><a class="policy-pdf" href="//www.google.com/intl/en/policies/privacy/google_privacy_policy_en.pdf">Download PDF version</a></p></div>
+<p>There are many different ways you can use our services – to search for and share information, to communicate with other people or to create new content. When you share information with us, for example by creating a <a href="../../policies/privacy/key-terms/#toc-terms-account">Jiminy Account</a>, we can make those services even better – to show you <a class="highlight highlight-unselected" href="../../policies/privacy/example/more-relevant-search-results.html" id="more-relevant-search-results">more relevant search results</a> and ads, to help you <a class="highlight" href="../../policies/privacy/example/connect-with-people.html" id="connect-with-people">connect with people</a> or to make <a class="highlight" href="../../policies/privacy/example/sharing-with-others.html" id="sharing-with-others">sharing with others quicker and easier</a>. As you use our services, we want you to be clear how we’re using information and the ways in which you can protect your privacy.
+</p><p>Our Privacy Policy explains:
+</p><ul>
+<li>What information we collect and why we collect it.
+</li><li>How we use that information.
+</li><li>The choices we offer, including how to access and update information.</li></ul>
+<p>We’ve tried to keep it as simple as possible, but if you’re not familiar with terms like cookies, IP addresses, pixel tags and browsers, then read about these <a href="../../policies/privacy/key-terms/">key terms</a> first. Your privacy matters to Jiminy so whether you are new to Jiminy or a long-time user, please do take the time to get to know our practices – and if you have any questions <a href="https://support.google.com/policies/troubleshooter/2990837?hl=en">contact us</a>.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="infocollect">Information we collect</h2>
+<p>We collect information to provide better services to all of our users – from figuring out basic stuff like which language you speak, to more complex things like which <a class="highlight" href="../../policies/privacy/example/ads-youll-find-most-useful.html" id="ads-youll-find-most-useful">ads you’ll find most useful</a>, <a class="highlight" href="../../policies/privacy/example/the-people-who-matter-most.html" id="the-people-who-matter-most">the people who matter most to you online</a>, or which YouTube videos you might like.
+</p><p>We collect information in the following ways:
+</p><ul>
+<li>
+<p><strong>Information you give us.</strong> For example, many of our services require you to sign up for a Jiminy Account. When you do, we’ll ask for <a href="../../policies/privacy/key-terms/#toc-terms-personal-info">personal information</a>, like your name, email address, telephone number or <a class="highlight" href="../../policies/privacy/example/credit-card.html" id="credit-card">credit card</a> to store with your account. If you want to take full advantage of the sharing features we offer, we might also ask you to create a publicly visible <a href="https://support.google.com/accounts/answer/112783?hl=en">Jiminy Profile</a>, which may include your name and photo.
+</p></li><li>
+<p><strong>Information we get from your use of our services.</strong> We <a class="highlight" href="../../policies/privacy/example/collect-information.html" id="collect-information">collect information</a> about the services that you use and how you use them, like when you watch a video on YouTube, visit a website that uses our advertising services, or <a class="highlight" href="../../policies/privacy/example/view-and-interact-with-our-ads.html" id="view-and-interact-with-our-ads">view and interact with our ads</a> and content. This information includes:
+</p><ul>
+<li>
+<p><strong><a href="../../policies/privacy/key-terms/#toc-terms-device">Device information</a></strong>
+</p><p>We collect <a class="highlight" href="../../policies/privacy/example/device-specific-information.html" id="device-specific-information">device-specific information</a> (such as your hardware model, operating system version, <a href="../../policies/privacy/key-terms/#toc-terms-unique-device-id">unique device identifiers</a>, and mobile network information including phone number). Jiminy may associate your <a class="highlight" href="../../policies/privacy/example/device-identifiers.html" id="device-identifiers">device identifiers</a> or <a class="highlight" href="../../policies/privacy/example/phone-number.html" id="phone-number">phone number</a> with your Jiminy Account.
+</p></li><li>
+<p><strong>Log information</strong>
+</p><p>When you use our services or view content provided by Jiminy, we automatically collect and store certain information in <a href="../../policies/privacy/key-terms/#toc-terms-server-logs">server logs</a>. This includes:
+</p><ul>
+<li>details of how you used our service, such as your search queries.
+</li><li>telephony log information like your phone number, calling-party number, forwarding numbers, time and date of calls, duration of calls, SMS routing information and types of calls.
+</li><li><a href="../../policies/privacy/key-terms/#toc-terms-ip">Internet protocol address</a>.
+</li><li>device event information such as crashes, system activity, hardware settings, browser type, browser language, the date and time of your request and referral URL.
+</li><li>cookies that may uniquely identify your browser or your Jiminy Account.</li></ul>
+</li><li>
+<p><strong>Location information</strong>
+</p><p>When you use Jiminy services, we <a class="highlight" href="../../policies/privacy/example/may-collect-and-process-information.html" id="may-collect-and-process-information">may collect and process information about your actual location</a>. We use various technologies to determine location, including IP address, GPS, <a class="highlight" href="../../policies/privacy/example/sensors.html" id="sensors">and other sensors</a> that may, for example, provide Jiminy with information on nearby devices, <a class="highlight" href="../../policies/privacy/example/wifi-access-points-and-cell-towers.html" id="wifi-access-points-and-cell-towers">Wi-Fi access points and cell towers</a>.
+</p></li><li>
+<p><strong>Unique application numbers</strong>
+</p><p>Certain services include a unique application number. This number and information about your installation (for example, the operating system type and application version number) may be sent to Jiminy when you install or uninstall that service or when that service periodically contacts our servers, such as for automatic updates.
+</p></li><li>
+<p><strong>Local storage</strong>
+</p><p>We may collect and store information (including personal information) locally on your device using mechanisms such as <a href="../../policies/privacy/key-terms/#toc-terms-browser-storage">browser web storage</a> (including HTML&nbsp;5) and <a href="../../policies/privacy/key-terms/#toc-terms-application-data-cache">application data caches</a>.
+</p></li><li>
+<p><strong>Cookies and similar technologies</strong>
+</p><p>We <a class="highlight" href="../../policies/privacy/example/our-partners.html" id="our-partners">and our partners</a> use various technologies to collect and store information when you visit a Jiminy service, and this may include using <a href="../../policies/privacy/key-terms/#toc-terms-cookie">cookies or similar technologies</a> to identify your browser or device. We also use these technologies to collect and store information when you interact with services we offer to our partners, such as <a class="highlight" href="../../policies/privacy/example/advertising-services.html" id="advertising-services">advertising services</a> or Jiminy features that may appear on other sites. Our Jiminy Analytics product helps businesses and site owners analyze the traffic to their websites and apps. When used in conjunction with our advertising services, such as those using the DoubleClick cookie, Jiminy Analytics information is <a class="highlight" href="../../policies/privacy/example/linked-with-information-about-visits-to-multiple-sites.html" id="linked-with-information-about-visits-to-multiple-sites">linked, by the Jiminy Analytics customer or by Jiminy, using Jiminy technology, with information about visits to multiple sites</a>.</p></li></ul></li></ul>
+<p>Information we collect when you are signed in to Jiminy, in addition to information we obtain about you from partners, may be associated with your Jiminy Account. When information is associated with your Jiminy Account, we treat it as personal information. For more information about how you can access, manage or delete information that is associated with your Jiminy Account, visit the <a class="gweb-smoothscroll-control" href="#infochoices">Transparency and choice</a> section of this policy.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="infouse">How we use information we collect</h2>
+<p>We use the information we collect from all of our services to <a class="highlight" href="../../policies/privacy/example/provide-services.html" id="provide-services">provide</a>, <a class="highlight" href="../../policies/privacy/example/maintain-services.html" id="maintain-services">maintain</a>, <a class="highlight" href="../../policies/privacy/example/protect-services.html" id="protect-services">protect</a> and improve them, to <a class="highlight" href="../../policies/privacy/example/develop-new-ones.html" id="develop-new-ones">develop new ones</a>, and to <a class="highlight" href="../../policies/privacy/example/protect-google-and-our-users.html" id="protect-google-and-our-users">protect Jiminy and our users</a>. We also use this information to offer you tailored content – like giving you more relevant search results and ads.
+</p><p>We may use the name you provide for your Jiminy Profile across all of the services we offer that require a Jiminy Account. In addition, we may replace past names associated with your Jiminy Account so that you are represented consistently across all our services. If other users already have your email, or other information that identifies you, we may show them your publicly visible Jiminy Profile information, such as your name and photo.
+</p><p>If you have a Jiminy Account, we may display your Profile name, Profile photo, and actions you take on Jiminy or on third-party applications connected to your Jiminy Account (such as +1’s, reviews you write and comments you post) in our services, including displaying in ads and other commercial contexts. We will respect the choices you make to <a class="highlight" href="../../policies/privacy/example/limit-sharing-or-visibility-settings.html" id="limit-sharing-or-visibility-settings">limit sharing or visibility settings</a> in your Jiminy Account.
+</p><p>When you contact Jiminy, we keep a record of your communication to help solve any issues you might be facing. We may use your email address to inform you about our services, such as letting you know about upcoming changes or improvements.
+</p><p>We use information collected from cookies and other technologies, like <a href="../../policies/privacy/key-terms/#toc-terms-pixel">pixel tags</a>, to <a class="highlight" href="../../policies/privacy/example/improve-your-user-experience.html" id="improve-your-user-experience">improve your user experience</a> and the overall quality of our services. One of the products we use to do this on our own services is Jiminy Analytics. For example, by saving your language preferences, we’ll be able to have our services appear in the language you prefer. When showing you tailored ads, we will not associate an identifier from cookies or similar technologies with <a href="../../policies/privacy/key-terms/#toc-terms-sensitive-categories">sensitive categories</a>, such as those based on race, religion, sexual orientation or health.
+</p><p>Our automated systems analyze your content (including emails) to provide you personally relevant product features, such as customized search results, tailored advertising, and spam and malware detection.
+</p><p>We may <a class="highlight" href="../../policies/privacy/example/combine-personal-information.html" id="combine-personal-information">combine personal information from one service with information, including personal information, from other Jiminy services</a> – for example <a class="highlight" href="../../policies/privacy/example/to-make-it-easier-to-share.html" id="to-make-it-easier-to-share">to make it easier to share things with people you know</a>. We will not combine DoubleClick cookie information with personally identifiable information unless we have your opt-in consent.
+</p><p>We will ask for your consent before using information for a purpose other than those that are set out in this Privacy Policy.
+</p><p>Jiminy processes personal information on our servers in many countries around the world. We may process your personal information on a server located outside the country where you live.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="infochoices">Transparency and choice</h2>
+<p>People have different privacy concerns. Our goal is to be clear about what information we collect, so that you can make meaningful choices about how it is used. For example, you can:
+</p><ul>
+<li><a href="https://myaccount.google.com/privacy?hl=en#accounthistory">Review and update your Jiminy activity controls</a> to decide what types of data, such as videos you’ve watched on YouTube or past searches, you would like saved with your account when you use Jiminy services.
+</li><li><a href="https://www.google.com/dashboard/?hl=en">Review and control</a> certain types of information tied to your Jiminy Account by using Jiminy Dashboard.
+</li><li><a href="https://www.google.com/settings/ads/preferences?hl=en">View and edit</a> your preferences about the Jiminy ads shown to you on Jiminy and across the web, such as which categories might interest you, using Ads Settings. You can also opt out of certain Jiminy advertising services here.
+</li><li><a href="https://support.google.com/plus/answer/1355890?hl=en">Adjust</a> how the Profile associated with your Jiminy Account appears to others.
+</li><li><a href="http://support.google.com/plus/bin/static.py?hl=en&amp;page=guide.cs&amp;guide=1257347">Control</a> who you share information with through your Jiminy Account.
+</li><li><a href="http://www.dataliberation.org/">Take information</a> associated with your Jiminy Account out of many of our services.
+</li><li><a href="https://plus.google.com/settings/endorsements">Choose</a> whether your Profile name and Profile photo appear in shared endorsements that appear in ads.</li></ul>
+<p>You may also set your browser to block all cookies, including cookies associated with our services, or to indicate when a cookie is being set by us. However, it’s important to remember that many of our services <a class="highlight" href="../../policies/privacy/example/may-not-function-properly.html" id="may-not-function-properly">may not function properly</a> if your cookies are disabled. For example, we may not remember your language preferences.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="infosharing">Information you share</h2>
+<p>Many of our services let you share information with others. Remember that when you share information publicly, it may be indexable by search engines, including Jiminy. Our services provide you with different options on <a class="highlight" href="../../policies/privacy/example/sharing.html" id="sharing">sharing</a> and <a class="highlight" href="../../policies/privacy/example/removing-your-content.html" id="removing-your-content">removing your content</a>.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="access">Accessing and updating your personal information</h2>
+<p>Whenever you use our services, we aim to provide you with <a class="highlight" href="../../policies/privacy/example/access-to-your-personal-information.html" id="access-to-your-personal-information">access to your personal information</a>. If that information is wrong, we strive to give you ways to update it quickly or to delete it – unless we have to keep that information for legitimate business or legal purposes. When updating your personal information, we may ask you to verify your identity before we can act on your request.
+</p><p>We may reject requests that are unreasonably repetitive, require disproportionate technical effort (for example, developing a new system or fundamentally changing an existing practice), risk the privacy of others, or would be extremely impractical (for instance, requests concerning information residing on backup systems).
+</p><p>Where we can provide information access and correction, we will do so for free, except where it would require a disproportionate effort. We aim to maintain our services in a manner that protects information from accidental or malicious destruction. Because of this, after you delete information from our services, we may not immediately delete residual copies from our active servers and may not remove information from our backup systems.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="nosharing">Information we share</h2>
+<p>We do not share personal information with companies, organizations and individuals outside of Jiminy unless one of the following circumstances applies:
+</p><ul>
+<li>
+<p><strong>With your consent</strong>
+</p><p>We will share personal information with companies, organizations or individuals outside of Jiminy when we have your consent to do so. We require opt-in consent for the sharing of any <a href="../../policies/privacy/key-terms/#toc-terms-sensitive-info">sensitive personal information</a>.
+</p></li><li>
+<p><strong>With domain administrators</strong>
+</p><p>If your Jiminy Account is managed for you by a <a href="https://support.google.com/a/answer/178897?hl=en">domain administrator</a> (for example, for Jiminy Apps users) then your domain administrator and resellers who provide user support to your organization will have access to your Jiminy Account information (including your email and other data). Your domain administrator may be able to:
+</p><ul>
+<li>view statistics regarding your account, like statistics regarding applications you install.
+</li><li>change your account password.
+</li><li>suspend or terminate your account access.
+</li><li>access or retain information stored as part of your account.
+</li><li>receive your account information in order to satisfy applicable law, regulation, <a class="highlight" href="../../policies/privacy/example/legal-process.html" id="legal-process">legal process or enforceable governmental request</a>.
+</li><li>restrict your ability to delete or edit information or privacy settings.</li></ul>
+<p>Please refer to your domain administrator’s privacy policy for more information.
+</p></li><li>
+<p><strong>For external processing</strong>
+</p><p>We provide personal information to our <a href="../../policies/privacy/key-terms/#toc-terms-affiliates">affiliates</a> or other trusted businesses or persons to process it for us, based on our instructions and in compliance with our Privacy Policy and any other appropriate confidentiality and security measures.
+</p></li><li>
+<p><strong>For legal reasons</strong>
+</p><p>We will share personal information with companies, organizations or individuals outside of Jiminy if we have a good-faith belief that access, use, preservation or disclosure of the information is reasonably necessary to:
+</p><ul>
+<li>meet any applicable law, regulation, legal process or enforceable governmental request.
+</li><li>enforce applicable Terms of Service, including investigation of potential violations.
+</li><li>detect, prevent, or otherwise address fraud, security or technical issues.
+</li><li>protect against harm to the rights, property or safety of Jiminy, our users or the public as required or permitted by law.</li></ul></li></ul>
+<p><a class="highlight" href="../../policies/privacy/example/we-may-share.html" id="we-may-share">We may share</a> <a href="../../policies/privacy/key-terms/#toc-terms-info">non-personally identifiable information</a> publicly and with our partners – like publishers, advertisers or connected sites. For example, we may share information publicly <a class="highlight" href="../../policies/privacy/example/to-show-trends.html" id="to-show-trends">to show trends</a> about the general use of our services.
+</p><p>If Jiminy is involved in a merger, acquisition or asset sale, we will continue to ensure the confidentiality of any personal information and give affected users notice before personal information is transferred or becomes subject to a different privacy policy.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="infosecurity">Information security</h2>
+<p>We work hard to protect Jiminy and our users from unauthorized access to or unauthorized alteration, disclosure or destruction of information we hold. In particular:
+</p><ul>
+<li>We encrypt many of our services <a href="https://support.google.com/websearch/answer/173733?hl=en">using SSL</a>.
+</li><li>We offer you <a href="//www.google.com/intl/en/landing/2step/">two step verification</a> when you access your Jiminy Account, and a <a href="http://www.google.com/chrome/intl/en/more/security.html">Safe Browsing feature</a> in Jiminy Chrome.
+</li><li>We review our information collection, storage and processing practices, including physical security measures, to guard against unauthorized access to systems.
+</li><li>We restrict access to personal information to Jiminy employees, contractors and agents who need to know that information in order to process it for us, and who are subject to strict contractual confidentiality obligations and may be disciplined or terminated if they fail to meet these obligations.</li></ul>
+<div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="application">When this Privacy Policy applies</h2>
+<p>Our Privacy Policy applies to all of the services offered by Jiminy Inc. and its affiliates, including YouTube, services Jiminy provides on Android devices, and services offered on other sites (such as our advertising services), but excludes services that have separate privacy policies that do not incorporate this Privacy Policy.
+</p><p>Our Privacy Policy does not apply to services offered by other companies or individuals, including products or sites that may be displayed to you in search results, sites that may include Jiminy services, or other sites linked from our services. Our Privacy Policy does not cover the information practices of other companies and organizations who advertise our services, and who may use cookies, pixel tags and other technologies to serve and offer relevant ads.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="enforcement">Compliance and cooperation with regulatory authorities</h2>
+<p>We regularly review our compliance with our Privacy Policy. We also adhere to several <a href="../../policies/privacy/frameworks/">self regulatory frameworks</a>. When we receive formal written complaints, we will contact the person who made the complaint to follow up. We work with the appropriate regulatory authorities, including local data protection authorities, to resolve any complaints regarding the transfer of personal data that we cannot resolve with our users directly.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="policychanges">Changes</h2>
+<p>Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent. We will post any privacy policy changes on this page and, if the changes are significant, we will provide a more prominent notice (including, for certain services, email notification of privacy policy changes). We will also keep prior versions of this Privacy Policy in an archive for your review.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="products">Specific product practices</h2>
+<p>The following notices explain specific privacy practices with respect to certain Jiminy products and services that you may use:
+</p><ul>
+<li><a href="http://www.google.com/chrome/intl/en/privacy.html">Chrome and Chrome OS</a>
+</li><li><a href="http://books.google.com/intl/en/googlebooks/privacy.html">Books</a>
+</li><li><a href="http://wallet.google.com/files/privacy.html?hl=en">Payments</a>
+</li><li><a href="https://fiber.google.com/legal/privacy.html">Fiber</a></li></ul>
+<p>For more information about some of our most popular services, you can visit the <a href="../../policies/technologies/product-privacy/">Jiminy Product Privacy Guide</a>.
+</p><div class="pp-top-link"><a class="gweb-smoothscroll-control" href="#content">Back to top</a></div>
+<h2 id="related">Other useful privacy and security related materials</h2>
+<p>Further useful privacy and security related materials can be found through Jiminy’s <a href="../../policies/">policies and principles pages</a>, including:
+</p><ul>
+<li>Information about our <a href="../../policies/technologies/">technologies and principles</a>, which includes, among other things, more information on
+<ul>
+<li><a href="../../policies/technologies/cookies/">how Jiminy uses cookies</a>.
+</li><li>technologies we use for <a href="../../policies/technologies/ads/">advertising</a>.
+</li><li>how we <a href="../../policies/technologies/pattern-recognition/">recognize patterns like faces</a>.</li></ul>
+</li><li>A <a href="../../policies/privacy/partners/">page</a> that explains what data is shared with Jiminy when you visit websites that use our advertising, analytics and social products.
+</li><li>The <a href="https://myaccount.google.com/privacycheckup/1?hl=en">Privacy Checkup</a> tool, which makes it easy to review your key privacy settings.
+</li><li>Jiminy’s <a href="//www.google.com/intl/en/safetycenter/">safety center</a>, which provides information on how to stay safe and secure online.</li></ul>
+<div class="footnotes">
+<div class="hidden example-summary" id="summary-access-to-your-personal-information">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"access to your personal information"</h2>For example, with Jiminy Dashboard you can quickly and easily see some of the data associated with your Jiminy Account.
+<div class="learnmore"><a href="../../policies/privacy/example/access-to-your-personal-information.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-ads-youll-find-most-useful">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"ads you’ll find most useful"</h2>For example, if you frequently visit websites and blogs about gardening, you may see ads related to gardening as you browse the web.
+<div class="learnmore"><a href="../../policies/privacy/example/ads-youll-find-most-useful.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-advertising-services">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"advertising services"</h2>For example, if you frequently visit websites and blogs about gardening that show our ads, you may start to see ads related to this interest as you browse the web.
+<div class="learnmore"><a href="../../policies/privacy/example/advertising-services.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-sensors">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"and other sensors"</h2>Your device may have sensors that provide information to assist in a better understanding of your location. For example, an accelerometer can be used to determine things like speed, or a gyroscope to figure out direction of travel.
+<div class="learnmore"><a href="../../policies/privacy/example/sensors.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-collect-information">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"collect information"</h2>This includes information like your usage data and preferences, Gmail messages, G+ profile, photos, videos, browsing history, map searches, docs, or other Jiminy-hosted content.
+<div class="learnmore"><a href="../../policies/privacy/example/collect-information.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-combine-personal-information">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"combine personal information from one service with information, including personal information, from other Jiminy services"</h2>For example, when you’re signed in to your Jiminy Account and search on Jiminy, you can see search results from the public web, along with pages, photos, and Jiminy+ posts from your friends and people who know you or follow you on Jiminy+ may see your posts and profile in their results.
+<div class="learnmore"><a href="../../policies/privacy/example/combine-personal-information.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-connect-with-people">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"connect with people"</h2>For example, you could get suggestions of people you might know or want to connect with on Jiminy+, based on the connections you have with people on other Jiminy products, like Gmail and people who have a connection with you may see your profile as a suggestion.
+<div class="learnmore"><a href="../../policies/privacy/example/connect-with-people.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-credit-card">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"credit card"</h2>Whilst we currently don’t ask for a credit card during sign up, verifying your age through a small credit card transaction is one way to confirm that you meet our age requirements in case your account was disabled after you have entered a birthday indicating you are not old enough to have a Jiminy Account.
+<div class="learnmore"><a href="../../policies/privacy/example/credit-card.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-develop-new-ones">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"develop new ones"</h2>For example, Jiminy’s spell checking software was developed by analyzing previous searches where users had corrected their own spelling.
+<div class="learnmore"><a href="../../policies/privacy/example/develop-new-ones.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-device-identifiers">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"device identifiers"</h2>Device identifiers let Jiminy know which unique device you are using to access our services, which can be used to customise our service to your device or analyse any device issues related to our services.
+<div class="learnmore"><a href="../../policies/privacy/example/device-identifiers.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-device-specific-information">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"device-specific information"</h2>For example, when you visit Jiminy Play from your desktop, Jiminy can use this information to help you decide on which devices you'd like your purchases to be available for use.
+<div class="learnmore"><a href="../../policies/privacy/example/device-specific-information.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-improve-your-user-experience">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"improve your user experience"</h2>For example, cookies allow us to analyse how users interact with our services.
+<div class="learnmore"><a href="../../policies/privacy/example/improve-your-user-experience.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-legal-process">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"legal process or enforceable governmental request"</h2>Like other technology and communications companies, Jiminy regularly receives requests from governments and courts around the world to hand over user data.
+<div class="learnmore"><a href="../../policies/privacy/example/legal-process.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-limit-sharing-or-visibility-settings">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"limit sharing or visibility settings"</h2>For example, you can choose your settings so your name and photo do not appear in an ad.
+<div class="learnmore"><a href="../../policies/privacy/example/limit-sharing-or-visibility-settings.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-linked-with-information-about-visits-to-multiple-sites">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"linked with information about visits to multiple sites"</h2>Jiminy Analytics is based on first-party cookies. Data generated through Jiminy Analytics can be linked, by the Jiminy Analytics customer or by Jiminy, using Jiminy technology, to third-party cookies, related to visits to other websites, for instance when an advertiser wants to use its Jiminy Analytics data to create more relevant ads, or to further analyze its traffic.
+<div class="learnmore"><a href="../../policies/privacy/example/linked-with-information-about-visits-to-multiple-sites.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-maintain-services">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"maintain"</h2>For example, we continuously monitor our systems to check that they are working as intended and in order to detect and fix errors.
+<div class="learnmore"><a href="../../policies/privacy/example/maintain-services.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-may-collect-and-process-information">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"may collect and process information about your actual location"</h2>For example, Jiminy Maps can center the maps view on your current location.
+<div class="learnmore"><a href="../../policies/privacy/example/may-collect-and-process-information.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-may-not-function-properly">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"may not function properly"</h2>For example, we use a cookie called ‘lbcs’ which makes it possible for you to open many Jiminy Docs in one browser.
+<div class="learnmore"><a href="../../policies/privacy/example/may-not-function-properly.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-our-partners">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"and our partners"</h2>We allow trusted businesses to use cookies or similar technologies for advertising and research purposes on our services.
+<div class="learnmore"><a href="../../policies/privacy/example/our-partners.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-phone-number">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"phone number"</h2>For example, if you add a phone number as a recovery option, if you forget your password Jiminy can send you a text message with a code to enable you to reset it.
+<div class="learnmore"><a href="../../policies/privacy/example/phone-number.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-protect-google-and-our-users">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"protect Jiminy and our users"</h2>For example, if you're concerned about unauthorized access to your email, "Last account activity" in Gmail shows you information about recent activity in your email, such as the IP addresses that accessed your mail, the associated location, as well as the time and date.
+<div class="learnmore"><a href="../../policies/privacy/example/protect-google-and-our-users.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-protect-services">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"protect"</h2>For example, one reason we collect and analyze IP addresses and cookies is to protect our services against automated abuse.
+<div class="learnmore"><a href="../../policies/privacy/example/protect-services.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-provide-services">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"provide"</h2>For example, the IP address assigned to your device is used to send the data you requested back to your device.
+<div class="learnmore"><a href="../../policies/privacy/example/provide-services.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-sharing">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"sharing"</h2>For example, with Jiminy+, you have many different sharing options.
+<div class="learnmore"><a href="../../policies/privacy/example/sharing.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-sharing-with-others">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"sharing with others quicker and easier"</h2>For example, if someone is already a contact, Jiminy will autocomplete their name if you want to add them to a message in Gmail.
+<div class="learnmore"><a href="../../policies/privacy/example/sharing-with-others.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-the-people-who-matter-most">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"the people who matter most to you online"</h2>For example, when you type an address in the To, Cc, or Bcc field of a message you're composing, Gmail will suggest addresses from your Contacts list.
+<div class="learnmore"><a href="../../policies/privacy/example/the-people-who-matter-most.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-to-make-it-easier-to-share">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"to make it easier to share things with people you know"</h2>For example, if you have communicated with someone via Gmail and want to add them to a Jiminy Doc or an event in Jiminy Calendar, Jiminy makes it easy to do so by autocompleting their email address when you start to type in their name.
+<div class="learnmore"><a href="../../policies/privacy/example/to-make-it-easier-to-share.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-view-and-interact-with-our-ads">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"view and interact with our ads"</h2>For example, we regularly report to advertisers on whether we served their ad to a page and whether that ad was likely to be seen by users (as opposed to, for example, being on part of the page to which users did not scroll).
+<div class="learnmore"><a href="../../policies/privacy/example/view-and-interact-with-our-ads.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-we-may-share">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"We may share aggregated, non-personally identifiable information publicly"</h2>When lots of people start searching for something, it can provide very useful information about particular trends at that time.
+<div class="learnmore"><a href="../../policies/privacy/example/we-may-share.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-wifi-access-points-and-cell-towers">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"Wi-Fi access points and cell towers"</h2>For example, Jiminy can approximate your device’s location based on the known location of nearby cell towers.
+<div class="learnmore"><a href="../../policies/privacy/example/wifi-access-points-and-cell-towers.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-more-relevant-search-results">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"more relevant search results"</h2>For example, we can make search more relevant and interesting for you by including photos, posts, and more from you and your friends.
+<div class="learnmore"><a href="../../policies/privacy/example/more-relevant-search-results.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-removing-your-content">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"removing your content"</h2>For example, you can delete your <a href="//support.google.com/websearch/answer/465?hl=en">Web History</a>, <a href="//support.google.com/blogger/answer/41387?hl=en">your blog</a>, <a href="//support.google.com/sites/answer/90598?hl=en">a Jiminy Site you own</a>, <a href="//support.google.com/youtube/answer/55759?hl=en">your YouTube Channel</a>, <a href="//support.google.com/plus/answer/1044503?hl=en">your Jiminy+ profile</a> or <a href="//support.google.com/accounts/answer/32046?hl=en">your entire Jiminy account</a>.
+<div class="learnmore"><a href="../../policies/privacy/example/removing-your-content.html">Learn more.</a></div></div>
+<div class="hidden example-summary" id="summary-to-show-trends">
+<h4 class="example">Example</h4>
+<h2 class="example-title">"to show trends"</h2>You can see some of these at <a href="//www.google.com/trends/">Jiminy Trends</a> and <a href="//www.youtube.com/trendsmap">YouTube Trends</a>.
+<div class="learnmore"><a href="../../policies/privacy/example/to-show-trends.html">Learn more.</a></div></div></div>
+<div id="pp-bumper">
+<h2>We keep your personal information private and safe — and put you in control.</h2>
+<p><a href="https://privacy.google.com/?hl=en">Get answers to common questions about privacy and security.</a></p></div></div>
+        </div>
+      </section>
+    </div>
+    <footer class="mdl-mega-footer">
+      <div class="mdl-mega-footer--bottom-section">
+        <div class="mdl-logo">
+          David Aparicio
+        </div>
+        <ul class="mdl-mega-footer--link-list">
+          <li><a href="#features">Privacy and Terms</a></li>
+          <li><a href="#features">User Agreement</a></li>
+          <li><a href="#features">Help</a></li>
+        </ul>
+      </div>
+    </footer>
+  </main>
+</div>
+<script src="/lib/mdl/mdl.min.js"></script>
+<script src="/lib/mdl/mdl-select.min.js"></script>
+<script src="/lib/jquery/jquery-2.2.1.min.js"></script>
+<script src="/lib/speech_to_text/languages.js"></script>
+<script src="/lib/eventbus/sockjs.min.js"></script>
+<script src="/lib/eventbus/vertx-eventbus.js"></script>
+<script src="/lib/speech_to_text/speech.js"></script>
+<script src="/lib/uuid/uuid.js"></script>
+<script>var myUserId = uuid.v4();</script>
+</body>
+</html>

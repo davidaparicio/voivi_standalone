@@ -2,5 +2,6 @@
   "http.port" : 10101,
   "mongo.port": 27017,
   "mongo.ip": "192.168.99.100",
+  //"mongo.ip": "10.3.254.90",
   "db_name": "voivi"
 }
