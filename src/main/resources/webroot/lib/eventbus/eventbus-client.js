@@ -1,3 +1,4 @@
+/* vertx3-eventbus-client v3.3.3 | https://www.npmjs.com/package/vertx3-eventbus-client | Apache license v2.0 */
 /*
  *   Copyright (c) 2011-2015 The original author or authors
  *   ------------------------------------------------------
@@ -103,10 +104,10 @@
       self.onopen && self.onopen();
     };
 
-    this.sockJSConn.onclose = function () {
+    this.sockJSConn.onclose = function (e) {
       self.state = EventBus.CLOSED;
       if (pingTimerID) clearInterval(pingTimerID);
-      self.onclose && self.onclose();
+      self.onclose && self.onclose(e);
     };
 
     this.sockJSConn.onmessage = function (e) {
