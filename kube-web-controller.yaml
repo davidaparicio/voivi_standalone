@@ -14,7 +14,7 @@ spec:
         name: web
     spec:
       containers:
-      - image: gcr.io/jiminy-standalone/jiminy:v6
+      - image: eu.gcr.io/jiminy-standalone/jiminy:v8
         name: web
         ports:
         - containerPort: 10101

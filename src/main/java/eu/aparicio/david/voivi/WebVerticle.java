@@ -12,6 +12,9 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import org.slf4j.LoggerFactory;
 
 import java.io.Reader;
@@ -81,8 +84,17 @@ public class WebVerticle extends AbstractVerticle {
         router.post("/api/feedbacks").handler(this::addOne);
         router.get("/api/feedbacks/:id").handler(this::getOne);
         router.get("/api/feedbacks/subject/:subject").handler(this::getAllBySubject);
+        router.get("/api/feedbacks/subject/:subject/count").handler(this::getAllBySubjectCount);
         router.get("/api/feedbacks/dates/:startDate/:finishDate").handler(this::getAllBetweenDates);
         router.delete("/api/feedbacks/:id").handler(this::deleteOne);
+
+        SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
+        BridgeOptions options = new BridgeOptions()
+                .addInboundPermitted(new PermittedOptions().setAddress("events"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("events"));
+        sockJSHandler.bridge(options);
+        router.route("/eventbus/*").handler(sockJSHandler);
+
         router.route("/*").handler(StaticHandler.create("webroot"));
 
         vertx.createHttpServer()
@@ -100,6 +112,7 @@ public class WebVerticle extends AbstractVerticle {
             String ipWebservice;
             try {
                 ipWebservice = InetAddress.getLocalHost().getHostAddress();
+                System.out.println("[SERVER] - Started http://"+ipWebservice+":"+config().getInteger("http.port", 8080));
                 logger.info("[SERVER] - Started http://"+ipWebservice+":"+config().getInteger("http.port", 8080));
             } catch (UnknownHostException e) {
                 logger.trace("[completeStartup]"+e);
@@ -179,6 +192,77 @@ public class WebVerticle extends AbstractVerticle {
         }
     }
 
+    private List<JsonObject> extractInformations(List<JsonObject> jsonList){
+        int counter = 0;
+        double averageSentiment = 0;
+        int nbPositive = 0;
+        int nbNeutral  = 0;
+        int nbNegative = 0;
+        for (JsonObject element: jsonList) {
+            logger.error(element.toString());
+            Feedback newFeedback = new Feedback(element);
+            //Feedback newFeedback = Json.decodeValue(element.toString(), Feedback.class);
+            counter++;
+            averageSentiment = newFeedback.getSentiment();
+            if (newFeedback.getSentiment().equals(0.) || newFeedback.getSentiment().equals(1.)) {
+                nbNegative++;
+
+            } else if (newFeedback.getSentiment().equals(3.) || newFeedback.getSentiment().equals(4.)) {
+                nbPositive++;
+
+            } else if (newFeedback.getSentiment().equals(2.)) {
+                nbNeutral++;
+
+            } else {
+                nbNeutral++;
+
+            }
+            /*switch (newFeedback.getSentiment()) {
+                case 0.:case 1.:
+                    nbNegative++;
+                    break;
+                case 3.:case 4.:
+                    nbPositive++;
+                    break;
+                case 2.:
+                    nbNeutral++;
+                    break;
+                default:
+                    nbNeutral++;
+                    break;
+            }*/
+        }
+        averageSentiment = averageSentiment/counter;
+        List<JsonObject> result = new ArrayList<JsonObject>();
+        result.add(new JsonObject().put("count",counter).put("averagesentiment",averageSentiment).put("nbPositive",nbPositive).put("nbNeutral", nbNeutral).put("nbNegative", nbNegative));
+        return result;
+    }
+
+    private void getAllBySubjectCount(RoutingContext routingContext) {
+        final String subject = routingContext.request().getParam("subject");
+        if (subject == null) {
+            routingContext.response().setStatusCode(400).end();
+        } else {
+            mongoClient.count(COLLECTION, new JsonObject().put("subject", subject), count -> {
+                if (count.succeeded()) {
+                    if (count.result() >= 1) {
+                        mongoClient.find(COLLECTION, new JsonObject().put("subject", subject), res -> {
+                            if (res.succeeded()) {
+                                routingContext.response().putHeader("content-type", contentType).end(Json.encodePrettily(extractInformations(res.result())));
+                            } else {
+                                routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBySubject",res);
+                            }
+                        });
+                    } else {
+                        routingContext.response().setStatusCode(204).end(); logger.warn("[getAllBySubject] - There is no feedback with this subject=" + subject);
+                    }
+                } else {
+                    routingContext.response().setStatusCode(404).end(); loggerWarning("getAllBySubject",count);
+                }
+            });
+        }
+    }
+
     private void getAllBetweenDates(RoutingContext routingContext) {
         Integer date1 = null;
         Integer date2 = null;
@@ -220,6 +304,8 @@ public class WebVerticle extends AbstractVerticle {
     private void addSentence(String sentence, Future<Feedback> future, JsonObject json){
         JsonObject sentenceJson = json.put("sentence", sentence);
         Feedback newFeedback = Json.decodeValue(sentenceJson.toString(), Feedback.class);
+
+        vertx.eventBus().publish("events", newFeedback.toJson());
 
         mongoClient.insert(COLLECTION, newFeedback.toJson(), res ->
         {

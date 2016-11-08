@@ -4,13 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.TestOptions;
 import io.vertx.ext.unit.junit.Timeout;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
@@ -32,6 +30,7 @@ public class WebVerticleTest {
 
     private Vertx vertx;
     private Integer port;
+    private String host = "localhost"; //"192.168.99.100"; //10.44.9.73";
     private String testId = "testId";
     private static final String MAX_TIMESTAMP = "2147483647";
 
@@ -55,6 +54,7 @@ public class WebVerticleTest {
         // We create deployment options and set the _configuration_ json object:
         ServerSocket socket = new ServerSocket(0);
         port = socket.getLocalPort();
+        //host = socket.getInetAddress();
         JsonObject jsonConfig = new JsonObject(jsonString)
                 .put("http.port", port) //random port
                 .put("db_name", "voivi_UnitTest"); //change to the test database
@@ -78,7 +78,7 @@ public class WebVerticleTest {
     public void checkThatTheIndexPageIsServed(TestContext context) {
         final Async async = context.async();
 
-        vertx.createHttpClient().getNow(port, "localhost", "/", response -> {
+        vertx.createHttpClient().getNow(port, host, "/userview.html", response -> {
             context.assertEquals(response.statusCode(), 200);
             //context.assertEquals(response.headers().get("content-type"), "text/html;charset=UTF-8");
             response.bodyHandler(body -> {
@@ -93,7 +93,7 @@ public class WebVerticleTest {
         Async async = context.async();
         final String json = new Feedback("I love test one sentence API!!", 20., "I", "love", "test one sentence API", "clefc1ef-clef-clef-clef-clefclefclef").encodePrettily();
         final String length = Integer.toString(json.length());
-        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+        vertx.createHttpClient().post(port, host, "/api/feedbacks")
             .putHeader("content-type", "application/json")
             .putHeader("content-length", length)
             .handler(response -> {
@@ -126,7 +126,7 @@ public class WebVerticleTest {
     }
     public void checkThatWeCanDelete(TestContext context) {
         Async async = context.async();
-        vertx.createHttpClient().delete(port, "localhost", "/api/feedbacks/"+ testId)
+        vertx.createHttpClient().delete(port, host, "/api/feedbacks/"+ testId)
             .handler(res -> {
                 context.assertEquals(res.statusCode(), 204);
                 async.complete();
@@ -139,7 +139,7 @@ public class WebVerticleTest {
         Async async = context.async();
         final String json = new Feedback("I love empty!!", null, "", "", "", "clffc1ff-clff-clff-clff-clffclffclff").encodePrettily();
         final String length = Integer.toString(json.length());
-        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+        vertx.createHttpClient().post(port, host, "/api/feedbacks")
             .putHeader("content-type", "application/json")
             .putHeader("content-length", length)
             .handler(response -> {
@@ -179,7 +179,7 @@ public class WebVerticleTest {
                 "There are slow and repetitive parts, but it has just enough spice to keep it interesting. ",
                 null, "", "", "", "aaffaaff-aaff-aaff-aaff-aaffaaffaaff").encodePrettily();
         final String length = Integer.toString(json.length());
-        vertx.createHttpClient().post(port, "localhost", "/api/feedbacks")
+        vertx.createHttpClient().post(port, host, "/api/feedbacks")
             .putHeader("content-type", "application/json")
             .putHeader("content-length", length)
             .handler(response -> {
@@ -234,7 +234,7 @@ public class WebVerticleTest {
     @Test
     public void checkGetAllBySubject(TestContext context) {
         Async async = context.async();
-        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/subject/This%20restaurant")
+        vertx.createHttpClient().get(port, host, "/api/feedbacks/subject/This%20restaurant")
             .putHeader("content-type", "application/json")
             .handler(response -> {
                 context.assertEquals(response.statusCode(), 200);
@@ -271,7 +271,7 @@ public class WebVerticleTest {
     @Test
     public void checkGetAllBetweenDatesEmpty(TestContext context) {
         Async async = context.async();
-        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/0/1")
+        vertx.createHttpClient().get(port, host, "/api/feedbacks/dates/0/1")
                 .putHeader("content-type", "application/json")
                 .handler(response -> {
                     context.assertEquals(response.statusCode(), 204); //No Content
@@ -282,7 +282,7 @@ public class WebVerticleTest {
     @Test
     public void checkGetAllBetweenDates(TestContext context) {
         Async async = context.async();
-        vertx.createHttpClient().get(port, "localhost", "/api/feedbacks/dates/1000000000/"+MAX_TIMESTAMP)
+        vertx.createHttpClient().get(port, host, "/api/feedbacks/dates/1000000000/"+MAX_TIMESTAMP)
                 .putHeader("content-type", "application/json")
                 .handler(response -> {
                     context.assertEquals(response.statusCode(), 200);

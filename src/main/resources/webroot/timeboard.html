@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voivi - Graphboard</title>
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="img/android-desktop.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+  <link rel="apple-touch-icon-precomposed" href="img/ios-desktop.png">
+
+  <!-- Tile icon for Win8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+  <meta name="msapplication-TileColor" content="#3372DF">
+
+  <link rel="shortcut icon" href="/img/favicon.png">
+
+  <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+  <!--
+  <link rel="canonical" href="http://www.example.com/">
+  -->
+  <!--link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"-->
+  <link rel="stylesheet" href="/lib/fonts/mdl-font.css">
+  <link rel="stylesheet" href="/css/mdl-icons.css">
+  <link rel="stylesheet" href="/css/mdl-tealpink.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/mdl-template.css">
+  <link rel="stylesheet" href="/css/mdl-select.min.css">
+  <!--link rel="stylesheet" href="node_modules/material-design-lite/material.css" /-->
+  <link rel="stylesheet" href="/lib/mdl_ext/mdl-ext.min.css" />
+</head>
+<body class="mdl-demo mdl-color--grey-300 mdl-color-text--grey-700 mdl-base">
+
+<div class="demo-layout-transparent mdl-layout mdl-js-layout">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Voivi - User Overview Dashboard</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation -->
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" href="dashboard.html">Dashboard</a>
+        <a class="mdl-navigation__link" href="graphboard.html">Graphboard</a>
+        <a class="mdl-navigation__link" href="userview.html">Userview</a>
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Views</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Realtime graph</a>
+      <a class="mdl-navigation__link" href="">Historical graph</a>
+      <a class="mdl-navigation__link" href="">Scatter graph</a>
+      <a class="mdl-navigation__link" href="">Most relevant</a>
+    </nav>
+  </div>
+
+<!--div class="mdl-layout mdl-js-layout mdl-layout--fixed-header"-->
+
+  <main class="mdl-layout__content">
+      <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+        <div class="mdl-cell mdl-cell--12-col">
+            <div id="realtime" style="height: 400px; min-width: 310px"></div>
+        </div>
+        <div id="log"></div>
+      </section>
+  </main>
+</div>
+<script src="/lib/mdl/mdl.min.js"></script>
+<script src="/lib/mdl/mdl-select.min.js"></script>
+<script src="/lib/jquery/jquery-2.2.1.min.js"></script>
+<!--script type="text/javascript" src="node_modules/material-design-lite/material.min.js" charset="utf-8"></script-->
+<script type="text/javascript" src="/lib/mdl_ext/mdl-ext.min.js" charset="utf-8"></script>
+<script src="/lib/highcharts/highstock.js"></script>
+<script src="/lib/highcharts/exporting.js"></script>
+<script src="/lib/uuid/uuid.js"></script>
+<script src="/lib/eventbus/sockjs.min.js"></script>
+<script src="/lib/eventbus/eventbus-client.js"></script>
+<script>
+var eb = new EventBus("/eventbus");
+
+eb.onopen = function () {
+ eb.publish('events', {"sentence":"hello","sentiment":"0"});
+ eb.registerHandler('events', function (err, msg) {
+ if (err){
+ console.error(err)
+ }
+ console.log(msg);
+ $('#log').prepend('<div>' + msg.body.sentence + '-' + msg.body.sentiment + '</div>');
+ });
+ //error_showSnackbar();
+ //eb.send('events', {"message":"hello","from":"js"});
+ };
+</script>
+<script>
+$(function () {
+
+    Highcharts.setOptions({
+        global : {
+            useUTC : false
+        }
+    });
+
+    // Create the chart
+    $('#realtime').highcharts('StockChart', {
+        chart : {
+            events : {
+                load : function () {
+
+                    // set up the updating of the chart each second
+                    var series = this.series[0];
+                    setInterval(function () {
+                        var x = (new Date()).getTime(), // current time
+                            y = Math.round(Math.random() * 4);
+                        series.addPoint([x, y], true, true);
+                    }, 1000);
+                }
+            }
+        },
+
+        rangeSelector: {
+            buttons: [{
+                count: 1,
+                type: 'minute',
+                text: '1m'
+            }, {
+                count: 5,
+                type: 'minute',
+                text: '5m'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
+            inputEnabled: false,
+            selected: 0
+        },
+
+        title : {
+            text : 'Real-time sentiment'
+        },
+
+        exporting: {
+            enabled: false
+        },
+
+        series : [{
+            name : 'Random data',
+            data : (function () {
+                // generate an array of random data
+                var data = [], time = (new Date()).getTime(), i;
+
+                for (i = -999; i <= 0; i += 1) {
+                    data.push([time + i * 1000,Math.round(Math.random() * 4)]);
+                }
+                return data;
+            }())
+        }]
+    });
+
+});
+
+</script>
+<script>
+var el = document.getElementById('insertHere');
+el.innerHTML = '<div>'+uuid.v4()+'</div>';
+</script>
+</body>
+</html>
