@@ -6,7 +6,7 @@ volumes:
 services:
   jenkins:
     container_name: jenkins
-    image: library/jenkins:2.7.1-alpine
+    image: library/jenkins:2.7.4-alpine
     volumes:
     - jenkinshd:/var/jenkins_home
     - ../:/home/voivi/
@@ -17,7 +17,7 @@ services:
 
   sonar:
     container_name: sonar
-    image: library/sonarqube:5.6-alpine
+    image: library/sonarqube:6.1-alpine
     volumes:
     - sonarhd:/opt/sonarqube/data
     - sonarhq:/opt/sonarqube/extensions

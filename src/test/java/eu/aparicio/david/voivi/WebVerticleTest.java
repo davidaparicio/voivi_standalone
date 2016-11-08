@@ -26,7 +26,7 @@ import java.net.ServerSocket;
 public class WebVerticleTest {
 
     @Rule
-    public Timeout rule = Timeout.seconds(30);
+    public Timeout rule = Timeout.seconds(45);
 
     private Vertx vertx;
     private Integer port;
