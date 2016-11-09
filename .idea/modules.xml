@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/voivi.iml" filepath="$PROJECT_DIR$/voivi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/voivi_standalone.iml" filepath="$PROJECT_DIR$/voivi_standalone.iml" />
     </modules>
   </component>
 </project>

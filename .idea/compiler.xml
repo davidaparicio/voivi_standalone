@@ -23,10 +23,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="voivi" />
+        <module name="voivi_standalone" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="voivi" target="1.8" />
+      <module name="voivi_standalone" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
