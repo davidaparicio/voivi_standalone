@@ -177,8 +177,8 @@ public class Feedback {
         if(!alreadyComputed){
             this.sentiment = 0.; //default
             try {
-                sentiment = Double.parseDouble(sentiment.toString());
-                this.sentiment = sentiment;
+                // Test if sentiment is a Double
+                this.sentiment = Double.parseDouble(sentiment.toString());
             } catch(NullPointerException e) {
                 // It is perfectly acceptable to not handle "e" here
                 logger.trace("setSentiment/NullPointerException " + e);
